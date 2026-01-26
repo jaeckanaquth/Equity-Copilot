@@ -1,0 +1,10 @@
+# CLI
+typer
+rich
+
+# Data
+pandas
+requests
+
+# Validation / schemas
+pydantic
