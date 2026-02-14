@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weekly Review</title>
+</head>
+<body>
+    <h1>Weekly Review</h1>
+
+    <h2>Open Questions</h2>
+    {% if questions %}
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Age (days)</th>
+                <th>Snapshots</th>
+            </tr>
+            {% for q in questions %}
+            <tr>
+                <td>{{ q.question_id }}</td>
+                <td>{{ q.age_days }}</td>
+                <td>{{ q.snapshot_ids|length }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No open questions.</p>
+    {% endif %}
+
+    <h2>Beliefs Needing Review</h2>
+    {% if stale_beliefs %}
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Last Review</th>
+                <th>New Snapshots</th>
+            </tr>
+            {% for b in stale_beliefs %}
+            <tr>
+                <td>{{ b.belief_id }}</td>
+                <td>{{ b.last_review }}</td>
+                <td>{{ b.newer_snapshot_ids|length }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No stale beliefs.</p>
+    {% endif %}
+
+    <h2>Orphaned Artifacts</h2>
+
+    <h3>Beliefs without Snapshots</h3>
+    <ul>
+        {% for b in orphans.beliefs_without_snapshots %}
+            <li>{{ b }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Snapshots without Dependents</h3>
+    <ul>
+        {% for s in orphans.snapshots_without_dependents %}
+            <li>{{ s }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

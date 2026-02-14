@@ -2,6 +2,9 @@
 typer
 rich
 
+# API
+fastapi
+
 # Data
 pandas
 requests
