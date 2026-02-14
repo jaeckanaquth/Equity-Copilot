@@ -25,8 +25,9 @@ def test_stale_belief_detected(artifact_repo, lifecycle_repo, snapshot_factory):
     service = BeliefAnalysisService(artifact_repo, lifecycle_repo)
     results = service.get_beliefs_needing_review()
 
-    assert len(results) == 1
-    assert results[0]["belief_id"] == str(belief.reasoning_id)
+    assert "TEST" in results
+    assert len(results["TEST"]) == 1
+    assert results["TEST"][0]["belief_id"] == str(belief.reasoning_id)
 
 
 def test_snapshot_coverage_gap(artifact_repo, lifecycle_repo):

@@ -16,7 +16,7 @@ class BeliefLifecycleRepository:
             event_id=str(event.event_id),
             belief_id=str(belief_id),
             created_at=created_at,
-            payload=event.model_dump(),
+            payload=event.model_dump(mode="json"),
         )
 
         self.db.add(orm_obj)

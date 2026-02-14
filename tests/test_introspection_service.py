@@ -17,6 +17,7 @@ def test_get_open_questions(artifact_repo):
     service = IntrospectionService(artifact_repo)
     results = service.get_open_questions()
 
-    assert len(results) == 1
-    assert results[0]["age_days"] >= 10
-    assert results[0]["question_id"] == str(question.reasoning_id)
+    assert "uncoupled" in results
+    assert len(results["uncoupled"]) == 1
+    assert results["uncoupled"][0]["age_days"] >= 10
+    assert results["uncoupled"][0]["question_id"] == str(question.reasoning_id)

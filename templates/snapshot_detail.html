@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snapshot Detail</title>
+</head>
+<body>
+    <p><a href="/weekly-review">← Weekly Review</a></p>
+    <h1>Snapshot Detail</h1>
+
+    <p><strong>ID:</strong> {{ snapshot.metadata.snapshot_id }}</p>
+    <p><strong>Ticker:</strong> {{ snapshot.company.ticker or "-" }}</p>
+    <p><strong>As Of:</strong> {{ snapshot.metadata.as_of }}</p>
+
+    <h3>Core Metrics</h3>
+    <ul>
+        <li>Revenue FY: {{ snapshot.financials.revenue_fy }}</li>
+        <li>Net Profit FY: {{ snapshot.financials.net_profit_fy }}</li>
+        <li>Operating Margin FY: {{ snapshot.financials.operating_margin_fy }}</li>
+    </ul>
+</body>
+</html>

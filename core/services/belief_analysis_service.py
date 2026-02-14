@@ -1,8 +1,16 @@
-from datetime import datetime
-from typing import List, Dict
+from collections import defaultdict
+from datetime import datetime, timezone
+from typing import Dict, List
 from core.models.reasoning_artifact import ArtifactType
 from core.models.stock_snapshot import StockSnapshot
 from core.models.reasoning_artifact import ReasoningArtifact
+
+
+def _ensure_utc(dt: datetime) -> datetime:
+    """Normalize datetime for comparison (ORM/store may return naive)."""
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 class BeliefAnalysisService:
@@ -14,10 +22,10 @@ class BeliefAnalysisService:
     # ---------------------------
     # Q3 — Beliefs Needing Review
     # ---------------------------
-    def get_beliefs_needing_review(self) -> List[Dict]:
-
+    def get_beliefs_needing_review(self) -> Dict[str, List]:
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         snapshots = self.artifact_repo.list_by_type("StockSnapshot")
+        now = datetime.now(timezone.utc)
 
         results = []
 
@@ -37,22 +45,73 @@ class BeliefAnalysisService:
                 if lifecycle_events
                 else artifact.created_at
             )
+            last_review = _ensure_utc(last_review)
+
+            tickers = set()
+            for sid in artifact.references.snapshot_ids:
+                snapshot = self.artifact_repo.get(str(sid))
+                if snapshot and snapshot.company.ticker:
+                    tickers.add(snapshot.company.ticker)
 
             newer_snapshots = [
                 s for s in snapshots
-                if s.metadata.as_of > last_review
+                if s.metadata.as_of > last_review and s.company.ticker in tickers
             ]
 
-            if newer_snapshots:
+            if newer_snapshots and tickers:
+                age_days_since_review = (now - last_review).days
+
                 results.append({
                     "belief_id": str(artifact.reasoning_id),
-                    "last_review": last_review,
+                    "belief_text": artifact.claim.statement,
+                    "age_days_since_review": age_days_since_review,
                     "newer_snapshot_ids": [
                         str(s.metadata.snapshot_id) for s in newer_snapshots
                     ],
+                    "company_tickers": sorted(list(tickers)),
                 })
 
-        return results
+        results.sort(key=lambda x: x["age_days_since_review"], reverse=True)
+
+        grouped = defaultdict(list)
+        for item in results:
+            if not item["company_tickers"]:
+                grouped["uncoupled"].append(item)
+            else:
+                key = ", ".join(item["company_tickers"])
+                grouped[key].append(item)
+
+        return dict(grouped)
+
+    # ---------------------------
+    # All beliefs (for visibility)
+    # ---------------------------
+    def get_all_beliefs_grouped(self) -> Dict[str, List]:
+        """Return all theses and risks grouped by company ticker (for display)."""
+        artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
+        results = []
+        for artifact in artifacts:
+            if artifact.artifact_type not in {
+                ArtifactType.thesis,
+                ArtifactType.risk,
+            }:
+                continue
+            tickers = set()
+            for sid in artifact.references.snapshot_ids:
+                snapshot = self.artifact_repo.get(str(sid))
+                if snapshot and snapshot.company.ticker:
+                    tickers.add(snapshot.company.ticker)
+            results.append({
+                "belief_id": str(artifact.reasoning_id),
+                "belief_text": artifact.claim.statement,
+                "artifact_type": artifact.artifact_type.value,
+                "company_tickers": sorted(list(tickers)),
+            })
+        grouped = defaultdict(list)
+        for item in results:
+            key = ", ".join(item["company_tickers"]) if item["company_tickers"] else "uncoupled"
+            grouped[key].append(item)
+        return dict(grouped)
 
     # ---------------------------
     # Q1 — Snapshot Coverage
@@ -80,7 +139,7 @@ class BeliefAnalysisService:
                 if not snapshot:
                     coverage_gap = True
                     break
-                if snapshot.metadata.as_of < belief.created_at:
+                if snapshot.metadata.as_of < _ensure_utc(belief.created_at):
                     coverage_gap = True
                     break
 

@@ -10,4 +10,6 @@ def test_orphan_belief_detected(artifact_repo):
     service = ArtifactIntegrityService(artifact_repo)
     orphans = service.get_orphans()
 
-    assert str(belief.reasoning_id) in orphans["beliefs_without_snapshots"]
+    assert str(belief.reasoning_id) in [
+        b["belief_id"] for b in orphans["beliefs_without_snapshots"]
+    ]

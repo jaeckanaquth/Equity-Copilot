@@ -13,7 +13,7 @@ from api.schemas.review import (
     CoverageResponse,
     OrphanResponse,
 )
-from typing import List
+from typing import Dict, List
 
 
 router = APIRouter()
@@ -34,14 +34,14 @@ def get_db():
 # Weekly Review Endpoints
 # -------------------------
 
-@router.get("/questions", response_model=List[OpenQuestionResponse])
+@router.get("/questions", response_model=Dict[str, List[OpenQuestionResponse]])
 def open_questions(db: Session = Depends(get_db)):
     artifact_repo = ArtifactRepository(db)
     service = IntrospectionService(artifact_repo)
     return service.get_open_questions()
 
 
-@router.get("/beliefs/stale", response_model=List[StaleBeliefResponse])
+@router.get("/beliefs/stale", response_model=Dict[str, List[StaleBeliefResponse]])
 def stale_beliefs(db: Session = Depends(get_db)):
     artifact_repo = ArtifactRepository(db)
     lifecycle_repo = BeliefLifecycleRepository(db)

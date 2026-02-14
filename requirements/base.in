@@ -4,10 +4,12 @@ rich
 
 # API
 fastapi
+jinja2
 
 # Data
 pandas
 requests
+yfinance
 
 # Validation / schemas
 pydantic

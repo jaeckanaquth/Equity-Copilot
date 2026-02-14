@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -69,3 +69,26 @@ class BeliefLifecycleEvent(BaseModel):
 
     trigger: LifecycleTrigger
     justification: LifecycleJustification
+
+
+# -----------------------------
+# Manual review outcome (human-judged only)
+# -----------------------------
+
+class ReviewOutcome(str, Enum):
+    reinforced = "reinforced"
+    slight_tension = "slight_tension"
+    strong_tension = "strong_tension"
+    inconclusive = "inconclusive"
+
+
+class BeliefReviewOutcomeEvent(BaseModel):
+    event_id: UUID
+    schema_version: Literal["v1"] = "v1"
+    occurred_at: datetime
+    recorded_by: Literal["human"] = "human"
+    reasoning_id: UUID
+    event_kind: Literal["review_outcome"] = "review_outcome"
+    trigger: Literal["manual_review"] = "manual_review"
+    outcome: ReviewOutcome
+    note: Optional[str] = None

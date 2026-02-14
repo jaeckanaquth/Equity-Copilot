@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from db.session import Base
 from db.models.artifact import ArtifactORM
 from db.models.lifecycle import BeliefLifecycleEventORM
+from db.models.proposal import ProposalORM  # noqa: F401
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 

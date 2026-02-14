@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Belief Detail</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+        a { color: #2563eb; }
+        .draft-section { margin-top: 1.5rem; padding: 1rem; border: 1px solid #e5e5e4; border-radius: 6px; background: #fafaf9; }
+        .draft-output { margin-top: 0.5rem; padding: 0.75rem; background: #fff; border: 1px solid #e5e5e4; border-radius: 4px; white-space: pre-wrap; font-size: 0.9rem; }
+        .draft-attribution { font-size: 0.75rem; color: #57534e; margin-top: 0.25rem; }
+        .analysis-section { margin: 0.5rem 0; font-size: 0.9rem; }
+        .analysis-section ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+        button { padding: 0.4rem 0.75rem; cursor: pointer; background: #2563eb; color: #fff; border: none; border-radius: 4px; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .outcome-radios label { display: inline-block; margin-right: 1rem; }
+        .outcome-radios input { margin-right: 0.25rem; }
+        .outcome-note { width: 100%; max-width: 360px; padding: 0.35rem 0.5rem; border: 1px solid #e5e5e4; border-radius: 4px; font: inherit; }
+        .outcome-msg { margin-left: 0.5rem; font-size: 0.9rem; color: #15803d; }
+        .lifecycle-review-outcome { color: #57534e; }
+        .lifecycle-review-note { font-size: 0.9rem; color: #78716c; margin-left: 1rem; }
+    </style>
+</head>
+<body>
+    <p><a href="/weekly-review">← Weekly Review</a></p>
+    <h1>Belief Detail</h1>
+
+    <p><strong>ID:</strong> {{ belief.reasoning_id }}</p>
+    <p><strong>Created At:</strong> {{ belief.created_at }}</p>
+    <p><strong>Type:</strong> {{ belief.artifact_type }}</p>
+
+    <p><strong>Text:</strong></p>
+    <p>{{ belief.claim.statement }}</p>
+
+    <div class="draft-section">
+        <h3>Option 1 — Drafting Assistant</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Language refinement only. No new factual claims.</p>
+        <button id="draft-btn" type="button">Draft Refinement</button>
+        <div id="draft-output" class="draft-output" style="display:none;"></div>
+        <p id="draft-attr" class="draft-attribution" style="display:none;"></p>
+    </div>
+
+    {% if has_newer_snapshots %}
+    <div class="draft-section" style="margin-top:1rem; border-color:#d6d3d1;">
+        <h3>Option 2 — Structural Change Analysis</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Semantic delta since last review. For review only.</p>
+        <button id="analyze-btn" type="button">Analyze Changes Since Last Review</button>
+        <div id="analyze-output" style="display:none; margin-top:0.5rem;">
+            <div class="analysis-section"><strong>Delta Summary</strong><p id="delta-summary"></p></div>
+            <div class="analysis-section"><strong>Potential Tensions</strong><ul id="tensions"></ul></div>
+            <div class="analysis-section"><strong>Questions Raised</strong><ul id="questions"></ul></div>
+            <p class="draft-attribution" id="analyze-attr"></p>
+        </div>
+    </div>
+    {% endif %}
+    <div class="draft-section review-outcome-section">
+        <h3>Record review outcome (optional)</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Your judgment only. Not stored as fact.</p>
+        <form id="review-outcome-form">
+            <div class="outcome-radios">
+                <label><input type="radio" name="outcome" value="reinforced"> Reinforced</label>
+                <label><input type="radio" name="outcome" value="slight_tension"> Slight tension</label>
+                <label><input type="radio" name="outcome" value="strong_tension"> Strong tension</label>
+                <label><input type="radio" name="outcome" value="inconclusive"> Inconclusive</label>
+            </div>
+            <div style="margin-top:0.5rem;">
+                <input type="text" name="note" id="review-outcome-note" placeholder="Optional note" maxlength="500" class="outcome-note">
+            </div>
+            <div style="margin-top:0.75rem;">
+                <button type="submit" id="review-outcome-btn">Record outcome</button>
+                <span id="review-outcome-msg" class="outcome-msg" style="display:none;"></span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('draft-btn').onclick = async () => {
+            const btn = document.getElementById('draft-btn');
+            const out = document.getElementById('draft-output');
+            const attr = document.getElementById('draft-attr');
+            btn.disabled = true;
+            out.style.display = 'none';
+            try {
+                const r = await fetch('/api/llm/draft-belief-from-id', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ belief_id: '{{ belief.reasoning_id }}' })
+                });
+                const data = await r.json().catch(() => ({}));
+                if (r.ok) {
+                    out.textContent = data.text || '';
+                    out.style.display = 'block';
+                    attr.textContent = data.attribution || 'LLM Draft Suggestion (Not Saved)';
+                    attr.style.display = 'block';
+                } else {
+                    out.textContent = (data.detail || 'Error: ' + r.status);
+                    out.style.display = 'block';
+                }
+            } finally { btn.disabled = false; }
+        };
+        {% if has_newer_snapshots %}
+        document.getElementById('analyze-btn').onclick = async () => {
+            const btn = document.getElementById('analyze-btn');
+            const out = document.getElementById('analyze-output');
+            btn.disabled = true;
+            out.style.display = 'none';
+            try {
+                const r = await fetch('/api/llm/analyze-belief/{{ belief.reasoning_id }}', { method: 'POST' });
+                const data = await r.json().catch(() => ({}));
+                if (r.ok) {
+                    document.getElementById('delta-summary').textContent = data.delta_summary || '';
+                    const tensions = document.getElementById('tensions');
+                    tensions.innerHTML = (data.potential_tensions || []).map(t => '<li>' + t + '</li>').join('');
+                    const questions = document.getElementById('questions');
+                    questions.innerHTML = (data.questions_raised || []).map(q => '<li>' + q + '</li>').join('');
+                    document.getElementById('analyze-attr').textContent = data.attribution || 'LLM Structural Analysis — For Review Only';
+                    document.getElementById('analyze-attr').style.display = 'block';
+                    out.style.display = 'block';
+                } else {
+                    document.getElementById('delta-summary').textContent = data.detail || 'Error: ' + r.status;
+                    document.getElementById('tensions').innerHTML = '';
+                    document.getElementById('questions').innerHTML = '';
+                    out.style.display = 'block';
+                }
+            } finally { btn.disabled = false; }
+        };
+        {% endif %}
+        document.getElementById('review-outcome-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const outcome = form.querySelector('input[name="outcome"]:checked');
+            const noteEl = document.getElementById('review-outcome-note');
+            const btn = document.getElementById('review-outcome-btn');
+            const msg = document.getElementById('review-outcome-msg');
+            if (!outcome) { msg.textContent = 'Choose an outcome.'; msg.style.display = 'inline'; msg.style.color = '#991b1b'; return; }
+            btn.disabled = true;
+            msg.style.display = 'none';
+            try {
+                const r = await fetch('/api/beliefs/{{ belief.reasoning_id }}/review-outcome', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ outcome: outcome.value, note: (noteEl && noteEl.value) || null })
+                });
+                if (r.ok) {
+                    msg.textContent = 'Recorded.';
+                    msg.style.color = '#15803d';
+                    msg.style.display = 'inline';
+                    form.reset();
+                    setTimeout(() => window.location.reload(), 600);
+                } else {
+                    const d = await r.json().catch(() => ({}));
+                    msg.textContent = d.detail || 'Error';
+                    msg.style.color = '#991b1b';
+                    msg.style.display = 'inline';
+                }
+            } finally { btn.disabled = false; }
+        });
+    </script>
+
+    <h3>Referenced Snapshots</h3>
+    <ul>
+    {% for sid in belief.references.snapshot_ids %}
+        <li><a href="/snapshots/{{ sid }}">{{ sid }}</a></li>
+    {% endfor %}
+    </ul>
+    {% if not belief.references.snapshot_ids %}
+    <p>None.</p>
+    {% endif %}
+
+    <h3>Lifecycle Events</h3>
+    <ul>
+    {% for event in lifecycle_events %}
+        <li>
+            {% if event.payload.get("event_kind") == "review_outcome" %}
+            <span class="lifecycle-review-outcome">{{ event.created_at }} — Review outcome: {% if event.payload.get("outcome") == "reinforced" %}Reinforced{% elif event.payload.get("outcome") == "slight_tension" %}Slight tension{% elif event.payload.get("outcome") == "strong_tension" %}Strong tension{% elif event.payload.get("outcome") == "inconclusive" %}Inconclusive{% else %}{{ event.payload.get("outcome", "") }}{% endif %}</span>
+            {% if event.payload.get("note") %}<span class="lifecycle-review-note">{{ event.payload.note }}</span>{% endif %}
+            {% else %}
+            {{ event.created_at }} — {{ event.payload }}
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    {% if not lifecycle_events %}
+    <p>None.</p>
+    {% endif %}
+</body>
+</html>

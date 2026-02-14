@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposal History — Equity Copilot</title>
+    <style>
+        :root {
+            --bg: #fafaf9;
+            --surface: #ffffff;
+            --border: #e5e5e4;
+            --text: #1c1917;
+            --text-muted: #57534e;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .nav { margin-bottom: 2rem; font-size: 0.875rem; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; color: var(--accent-hover); }
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        details { border-bottom: 1px solid var(--border); }
+        details:last-child { border-bottom: none; }
+        summary {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            background: transparent;
+            transition: background 0.15s;
+            list-style: none;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::before {
+            content: "▸ ";
+            font-size: 0.75em;
+            opacity: 0.6;
+            margin-right: 0.25rem;
+        }
+        details[open] summary::before { content: "▾ "; }
+        summary:hover { background: var(--bg); }
+        details[open] summary { border-bottom: 1px solid var(--border); }
+        .history-type { margin: 0.5rem 0; padding-left: 1rem; }
+        .history-status { margin: 0.25rem 0; padding-left: 1.5rem; }
+        .history-item {
+            padding: 0.5rem 1rem 0.5rem 2rem;
+            font-size: 0.8125rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item:hover { background: var(--bg); }
+        .condition-state { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .empty { color: var(--text-muted); font-size: 0.875rem; padding: 1rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { font-weight: 500; color: var(--text-muted); background: var(--bg); }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Proposal History ({{ history_total }})</h1>
+    <p class="nav"><a href="/weekly-review">← Weekly Review</a></p>
+
+    <div class="section">
+    {% if history_total > 0 %}
+    {% for proposal_type, by_status in history.items() %}
+    {% set type_total = by_status.values()|map('length')|sum %}
+    {% if type_total > 0 %}
+    <details>
+        <summary>{{ proposal_type | replace("_", " ") | title }} ({{ type_total }})</summary>
+        <div class="history-type">
+        {% for status, items in by_status.items() %}
+        {% if items %}
+        <details class="history-status">
+            <summary>{{ status }} ({{ items|length }})</summary>
+            <table>
+            <tr>
+                <th>Belief</th>
+                <th>ID</th>
+                <th>Created</th>
+                <th>Age</th>
+                <th></th>
+            </tr>
+            {% for i in items %}
+            <tr>
+                <td>
+                    <a href="/beliefs/{{ i.belief_id }}">
+                        {{ i.belief_text[:80] }}{% if i.belief_text|length > 80 %}...{% endif %}
+                    </a>
+                </td>
+                <td><a href="/beliefs/{{ i.belief_id }}" title="{{ i.belief_id }}">{{ i.belief_id[:8] }}</a></td>
+                <td>{{ i.created_at[:19] if i.created_at else "—" }}</td>
+                <td>{{ i.age_days }}d</td>
+                <td><button type="button" class="btn-explain" data-proposal-type="{{ proposal_type }}" data-belief-text="{{ i.belief_text|e }}" data-condition-state="{{ (i.condition_state or {})|tojson|e }}">Explain</button></td>
+            </tr>
+            <tr class="explain-row" style="display:none;">
+                <td colspan="5" class="explain-output" style="padding:0.5rem;font-size:0.8rem;color:#57534e;"></td>
+            </tr>
+            {% if i.condition_state %}
+            <tr>
+                <td colspan="5" class="condition-state">
+                    condition_state: {{ i.condition_state.get("type", "—") }} @ {{ i.condition_state.get("triggered_at", "—") }}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </table>
+        </details>
+        {% endif %}
+        {% endfor %}
+        </div>
+    </details>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <p class="empty">No proposal history.</p>
+    {% endif %}
+    </div>
+
+    <script>
+    document.querySelectorAll('.btn-explain').forEach(btn => {
+        btn.onclick = async () => {
+            const tr = btn.closest('tr');
+            const explainTr = tr.nextElementSibling;
+            if (!explainTr || !explainTr.classList.contains('explain-row')) return;
+            const out = explainTr.querySelector('.explain-output');
+            if (out.textContent && explainTr.style.display === 'block') return;
+            const proposalType = btn.dataset.proposalType || '';
+            const beliefText = btn.dataset.beliefText || '';
+            let conditionState = null;
+            try { conditionState = JSON.parse(btn.dataset.conditionState || '{}'); } catch (_) {}
+            btn.disabled = true;
+            out.textContent = 'Loading...';
+            explainTr.style.display = 'table-row';
+            try {
+                const r = await fetch('/api/llm/explain-proposal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState })
+                });
+                const d = await r.json().catch(() => ({}));
+                out.textContent = r.ok ? (d.text || '') : (d.detail || 'Error');
+            } finally { btn.disabled = false; }
+        };
+    });
+    </script>
+</body>
+</html>

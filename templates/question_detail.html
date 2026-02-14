@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question Detail</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+        a { color: #2563eb; }
+        .draft-section { margin-top: 1.5rem; padding: 1rem; border: 1px solid #e5e5e4; border-radius: 6px; background: #fafaf9; }
+        .draft-output { margin-top: 0.5rem; padding: 0.75rem; background: #fff; border: 1px solid #e5e5e4; border-radius: 4px; white-space: pre-wrap; font-size: 0.9rem; }
+        button { padding: 0.4rem 0.75rem; cursor: pointer; margin-right: 0.5rem; background: #2563eb; color: #fff; border: none; border-radius: 4px; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <p><a href="/weekly-review">← Weekly Review</a></p>
+    <h1>Question Detail</h1>
+
+    <p><strong>ID:</strong> {{ question.reasoning_id }}</p>
+    <p><strong>Created At:</strong> {{ question.created_at }}</p>
+    <p><strong>Text:</strong></p>
+    <p>{{ question.claim.statement }}</p>
+
+    <div class="draft-section">
+        <h3>Drafting Assistant</h3>
+        <button id="draft-btn" type="button">Draft refined question</button>
+        <button id="subq-btn" type="button" title="LLM-Suggested Sub-Questions (Optional Brainstorming)">Sub-questions (LLM brainstorming)</button>
+        <div id="draft-output" class="draft-output" style="display:none;"></div>
+    </div>
+    <script>
+        const qId = '{{ question.reasoning_id }}';
+        async function callDraft(promptType) {
+            const out = document.getElementById('draft-output');
+            document.querySelectorAll('button').forEach(b => { b.disabled = true; });
+            out.style.display = 'none';
+            try {
+                const r = await fetch('/api/llm/draft-question-from-id', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question_id: qId, prompt_type: promptType })
+                });
+                const data = await r.json().catch(() => ({}));
+                out.textContent = r.ok ? (data.text || '') : (data.detail || 'Error');
+                out.style.display = 'block';
+            } finally {
+                document.querySelectorAll('button').forEach(b => { b.disabled = false; });
+            }
+        }
+        document.getElementById('draft-btn').onclick = () => callDraft('refine');
+        document.getElementById('subq-btn').onclick = () => callDraft('sub_questions');
+    </script>
+
+    <h3>Referenced Snapshots</h3>
+    <ul>
+    {% for sid in question.references.snapshot_ids %}
+        <li><a href="/snapshots/{{ sid }}">{{ sid }}</a></li>
+    {% endfor %}
+    </ul>
+    {% if not question.references.snapshot_ids %}
+    <p>None.</p>
+    {% endif %}
+</body>
+</html>

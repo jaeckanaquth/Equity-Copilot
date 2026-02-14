@@ -1,66 +1,365 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weekly Review</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Review — Equity Copilot</title>
+    <style>
+        :root {
+            --bg: #fafaf9;
+            --surface: #ffffff;
+            --border: #e5e5e4;
+            --text: #1c1917;
+            --text-muted: #57534e;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+        h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin: 2.5rem 0 0.75rem;
+            padding-bottom: 0.25rem;
+        }
+        h2:first-of-type { margin-top: 0; }
+        h3 { font-size: 0.9375rem; font-weight: 500; margin: 1rem 0 0.5rem; color: var(--text); }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; color: var(--accent-hover); }
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .section > h3 { padding: 1rem 1rem 0.5rem; }
+        .section > .empty { padding: 1rem; }
+        details {
+            border-bottom: 1px solid var(--border);
+        }
+        details:last-child { border-bottom: none; }
+        summary {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            background: transparent;
+            transition: background 0.15s;
+            list-style: none;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::before {
+            content: "▸ ";
+            font-size: 0.75em;
+            opacity: 0.6;
+            margin-right: 0.25rem;
+        }
+        details[open] summary::before { content: "▾ "; }
+        summary:hover { background: var(--bg); }
+        details[open] summary { border-bottom: 1px solid var(--border); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        th, td {
+            padding: 0.5rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--bg);
+        }
+        tr:hover td { background: var(--bg); }
+        .empty { color: var(--text-muted); font-size: 0.875rem; padding: 1rem; }
+        .proposal-cluster { margin: 0.5rem 0; }
+        .proposal-cluster details {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .proposal-cluster summary { padding: 0.5rem 0.75rem; font-weight: 400; }
+        .proposal-cluster ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+        .proposal-cluster li { margin: 0.25rem 0; }
+        .proposal-actions {
+            display: inline-flex;
+            gap: 0.5rem;
+            margin-left: 0.5rem;
+        }
+        .proposal-actions form { display: inline; }
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-sm:hover { background: var(--bg); }
+        .btn-accept { color: #15803d; border-color: #86efac; }
+        .btn-reject { color: #991b1b; border-color: #fecaca; }
+        .btn-explain { color: #57534e; border-color: #d6d3d1; font-size: 0.7rem; }
+        .explain-output { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; padding: 0.5rem; background: var(--bg); border-radius: 4px; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Weekly Review</h1>
+    <p><a href="/beliefs/new">Add belief</a> · <a href="/questions/new">Add question</a></p>
 
-    <h2>Open Questions</h2>
+    <h2>All Beliefs ({{ all_beliefs_total }})</h2>
+    <div class="section">
+    {% if all_beliefs %}
+    {% for company, items in all_beliefs.items()|sort %}
+    <details open>
+        <summary>{{ company }} ({{ items|length }})</summary>
+        <table>
+        <tr>
+            <th>Belief</th>
+            <th>Type</th>
+        </tr>
+        {% for b in items %}
+        <tr>
+            <td>
+                <a href="/beliefs/{{ b.belief_id }}">
+                    {{ b.belief_text[:120] }}{% if b.belief_text|length > 120 %}...{% endif %}
+                </a>
+            </td>
+            <td>{{ b.artifact_type }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    </details>
+    {% endfor %}
+    {% else %}
+    <p class="empty">No beliefs yet. <a href="/beliefs/new">Add belief</a></p>
+    {% endif %}
+    </div>
+
+    <h2>Open Questions ({{ questions_total }})</h2>
+    <div class="section">
     {% if questions %}
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Age (days)</th>
-                <th>Snapshots</th>
-            </tr>
-            {% for q in questions %}
-            <tr>
-                <td>{{ q.question_id }}</td>
-                <td>{{ q.age_days }}</td>
-                <td>{{ q.snapshot_ids|length }}</td>
-            </tr>
-            {% endfor %}
+    {% for company, items in questions.items()|sort %}
+    <details open>
+        <summary>{{ company }} ({{ items|length }})</summary>
+        <table>
+        <tr>
+            <th>Question</th>
+            <th>Age (days)</th>
+            <th>Snapshots</th>
+        </tr>
+        {% for q in items %}
+        <tr>
+            <td>
+                <a href="/questions/{{ q.question_id }}">
+                    {{ q.question_text[:120] }}{% if q.question_text|length > 120 %}...{% endif %}
+                </a>
+            </td>
+            <td>{{ q.age_days }}</td>
+            <td>{{ q.snapshot_ids|length }}</td>
+        </tr>
+        {% endfor %}
         </table>
+    </details>
+    {% endfor %}
     {% else %}
-        <p>No open questions.</p>
+    <p class="empty">No open questions.</p>
     {% endif %}
+    </div>
 
-    <h2>Beliefs Needing Review</h2>
+    <h2>Beliefs Needing Review ({{ stale_beliefs_total }})</h2>
+    <div class="section">
     {% if stale_beliefs %}
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Last Review</th>
-                <th>New Snapshots</th>
-            </tr>
-            {% for b in stale_beliefs %}
-            <tr>
-                <td>{{ b.belief_id }}</td>
-                <td>{{ b.last_review }}</td>
-                <td>{{ b.newer_snapshot_ids|length }}</td>
-            </tr>
-            {% endfor %}
+    {% for company, items in stale_beliefs.items()|sort %}
+    <details open>
+        <summary>{{ company }} ({{ items|length }})</summary>
+        <table>
+        <tr>
+            <th>Belief</th>
+            <th>Age since review (days)</th>
+            <th>New Snapshots</th>
+        </tr>
+        {% for b in items %}
+        <tr>
+            <td>
+                <a href="/beliefs/{{ b.belief_id }}">
+                    {{ b.belief_text[:120] }}{% if b.belief_text|length > 120 %}...{% endif %}
+                </a>
+            </td>
+            <td>{{ b.age_days_since_review }}</td>
+            <td>{{ b.newer_snapshot_ids|length }}</td>
+        </tr>
+        {% endfor %}
         </table>
+    </details>
+    {% endfor %}
     {% else %}
-        <p>No stale beliefs.</p>
+    <p class="empty">No stale beliefs.</p>
     {% endif %}
+    </div>
 
     <h2>Orphaned Artifacts</h2>
+    <div class="section">
+    <h3>Beliefs without Snapshots ({{ orphans.beliefs_without_snapshots|length }})</h3>
+    {% if orphans.beliefs_without_snapshots %}
+    <table>
+    <tr>
+        <th>Company</th>
+        <th>Belief</th>
+        <th>ID</th>
+    </tr>
+    {% for b in orphans.beliefs_without_snapshots %}
+    <tr>
+        <td>(uncoupled)</td>
+        <td>
+            <a href="/beliefs/{{ b.belief_id }}">
+                {{ b.belief_text[:120] }}{% if b.belief_text|length > 120 %}...{% endif %}
+            </a>
+        </td>
+        <td><a href="/beliefs/{{ b.belief_id }}" title="{{ b.belief_id }}">{{ b.belief_id[:8] }}</a></td>
+    </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">None.</p>
+    {% endif %}
 
-    <h3>Beliefs without Snapshots</h3>
-    <ul>
-        {% for b in orphans.beliefs_without_snapshots %}
-            <li>{{ b }}</li>
+    <h3>Snapshots without Dependents ({{ orphans.snapshots_without_dependents|length }})</h3>
+    {% if orphans.snapshots_without_dependents %}
+    <table>
+    <tr>
+        <th>Company</th>
+        <th>Snapshot ID</th>
+        <th>As of</th>
+        <th>Age (days)</th>
+    </tr>
+    {% for s in orphans.snapshots_without_dependents %}
+    <tr>
+        <td>{{ s.ticker if s.ticker else "(uncoupled)" }}</td>
+        <td><a href="/snapshots/{{ s.snapshot_id }}" title="{{ s.snapshot_id }}">{{ s.snapshot_id[:8] }}</a></td>
+        <td>{{ s.as_of }}</td>
+        <td>{{ s.age_days }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">None.</p>
+    {% endif %}
+    </div>
+
+    <h2>Structural Proposals ({{ proposals_total }}) <a href="/proposals/history" style="font-size:0.8em;font-weight:400;">View history</a></h2>
+    <div class="section">
+    {% if proposals_total > 0 %}
+    {% for proposal_type, clusters in proposals.items() %}
+    {% set type_total = clusters.values()|map('length')|sum %}
+    {% if type_total > 0 %}
+    <h3>{{ proposal_type | replace("_", " ") | title }} ({{ type_total }})</h3>
+    <div class="proposal-cluster">
+    {% for belief_text, instances in clusters.items() %}
+    <details>
+        <summary>
+            {{ belief_text[:120] }}{% if belief_text|length > 120 %}...{% endif %}
+            ({{ instances|length }} beliefs)
+        </summary>
+        <ul>
+        {% for i in instances %}
+        <li data-proposal-id="{{ i.proposal_id }}" data-proposal-type="{{ i.proposal_type }}" data-belief-text="{{ i.belief_text|e }}" data-condition-state="{{ (i.condition_state or {})|tojson|e }}">
+            <a href="/beliefs/{{ i.belief_id }}" title="{{ i.belief_id }}">{{ i.belief_id[:8] }}</a>
+            — Age: {{ i.age_days }} days
+            <span class="proposal-actions">
+                <button type="button" class="btn-sm btn-explain proposal-explain">Explain</button>
+                <form action="/proposals/{{ i.proposal_id }}/accept" method="post" class="proposal-form">
+                    <button type="submit" class="btn-sm btn-accept">Accept</button>
+                </form>
+                <form action="/proposals/{{ i.proposal_id }}/reject" method="post" class="proposal-form">
+                    <button type="submit" class="btn-sm btn-reject">Reject</button>
+                </form>
+            </span>
+            <div class="explain-output" data-explain-for="{{ i.proposal_id }}" style="display:none;"></div>
+        </li>
         {% endfor %}
-    </ul>
+        </ul>
+    </details>
+    {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <p class="empty">No structural proposals.</p>
+    {% endif %}
+    </div>
 
-    <h3>Snapshots without Dependents</h3>
-    <ul>
-        {% for s in orphans.snapshots_without_dependents %}
-            <li>{{ s }}</li>
-        {% endfor %}
-    </ul>
-
+    <script>
+    document.querySelectorAll('.proposal-explain').forEach(btn => {
+        btn.onclick = async () => {
+            const li = btn.closest('li');
+            const out = li.querySelector('[data-explain-for]');
+            if (out.style.display === 'block' && out.textContent) return;
+            const proposalType = li.dataset.proposalType || '';
+            const beliefText = li.dataset.beliefText || '';
+            let conditionState = null;
+            try { conditionState = JSON.parse(li.dataset.conditionState || '{}'); } catch (_) {}
+            btn.disabled = true;
+            out.textContent = 'Loading...';
+            out.style.display = 'block';
+            try {
+                const r = await fetch('/api/llm/explain-proposal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState })
+                });
+                const d = await r.json().catch(() => ({}));
+                out.textContent = r.ok ? (d.text || '') : (d.detail || 'Error');
+            } finally { btn.disabled = false; }
+        };
+    });
+    document.querySelectorAll('.proposal-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const li = form.closest('li[data-proposal-id]');
+            const btn = form.querySelector('button');
+            btn.disabled = true;
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                if (res.ok && li) {
+                    li.remove();
+                    const ul = li.closest('ul');
+                    if (ul && ul.children.length === 0) ul.closest('details')?.remove();
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+    </script>
 </body>
 </html>
