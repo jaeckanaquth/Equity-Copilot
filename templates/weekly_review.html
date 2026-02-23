@@ -202,7 +202,7 @@
         <table>
         <tr>
             <th>Belief</th>
-            <th>Age since review (days)</th>
+            <th title="How old is the data this belief is grounded in?">Data age (days)</th>
             <th>New Snapshots</th>
         </tr>
         {% for b in items %}
@@ -212,7 +212,7 @@
                     {{ b.belief_text[:120] }}{% if b.belief_text|length > 120 %}...{% endif %}
                 </a>
             </td>
-            <td>{{ b.age_days_since_review }}</td>
+            <td title="Days since newest referenced snapshot">{{ b.age_days_since_review }}</td>
             <td>{{ b.newer_snapshot_ids|length }}</td>
         </tr>
         {% endfor %}

@@ -23,6 +23,13 @@ class BeliefAnalysisService:
     # Q3 — Beliefs Needing Review
     # ---------------------------
     def get_beliefs_needing_review(self) -> Dict[str, List]:
+        """
+        Staleness is data-driven only: a belief needs review when there exists
+        a snapshot S for one of the belief's tickers such that
+        S.as_of > max(referenced_snapshot.as_of).
+        Lifecycle (last_review) is not used for detection; it only tracks when
+        you acknowledged review.
+        """
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         snapshots = self.artifact_repo.list_by_type("StockSnapshot")
         now = datetime.now(timezone.utc)
@@ -36,35 +43,31 @@ class BeliefAnalysisService:
             }:
                 continue
 
-            lifecycle_events = self.lifecycle_repo.list_for_belief(
-                str(artifact.reasoning_id)
-            )
-
-            last_review = (
-                lifecycle_events[-1].created_at
-                if lifecycle_events
-                else artifact.created_at
-            )
-            last_review = _ensure_utc(last_review)
-
             tickers = set()
+            referenced_as_ofs = []
             for sid in artifact.references.snapshot_ids:
                 snapshot = self.artifact_repo.get(str(sid))
                 if snapshot and snapshot.company.ticker:
                     tickers.add(snapshot.company.ticker)
+                    referenced_as_ofs.append(_ensure_utc(snapshot.metadata.as_of))
+
+            if not referenced_as_ofs or not tickers:
+                continue
+
+            max_referenced_as_of = max(referenced_as_ofs)
 
             newer_snapshots = [
                 s for s in snapshots
-                if s.metadata.as_of > last_review and s.company.ticker in tickers
+                if s.company.ticker in tickers
+                and _ensure_utc(s.metadata.as_of) > max_referenced_as_of
             ]
 
-            if newer_snapshots and tickers:
-                age_days_since_review = (now - last_review).days
-
+            if newer_snapshots:
+                age_days = (now - max_referenced_as_of).days
                 results.append({
                     "belief_id": str(artifact.reasoning_id),
                     "belief_text": artifact.claim.statement,
-                    "age_days_since_review": age_days_since_review,
+                    "age_days_since_review": age_days,
                     "newer_snapshot_ids": [
                         str(s.metadata.snapshot_id) for s in newer_snapshots
                     ],

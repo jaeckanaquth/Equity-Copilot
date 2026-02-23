@@ -21,15 +21,19 @@ def test_orphan_belief_detected(artifact_repo):
 
 
 def test_stale_belief_detected(artifact_repo, lifecycle_repo, snapshot_factory):
-    snapshot_id = uuid4()
+    """Belief references old snapshot; a newer snapshot (same ticker) triggers 'needs review'."""
+    old_snapshot_id = uuid4()
     belief = reasoning_artifact_factory(
         created_at=datetime.now(timezone.utc) - timedelta(days=30),
-        snapshot_ids=[snapshot_id],
+        snapshot_ids=[old_snapshot_id],
     )
+    old_as_of = (datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
     newer_as_of = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00")
-    snapshot = snapshot_factory(snapshot_id=snapshot_id, as_of=newer_as_of)
+    old_snapshot = snapshot_factory(snapshot_id=old_snapshot_id, as_of=old_as_of)
+    new_snapshot = snapshot_factory(snapshot_id=uuid4(), as_of=newer_as_of)  # same ticker TEST
     artifact_repo.save(belief)
-    artifact_repo.save(snapshot)
+    artifact_repo.save(old_snapshot)
+    artifact_repo.save(new_snapshot)
     service = BeliefAnalysisService(artifact_repo, lifecycle_repo)
     results = service.get_beliefs_needing_review()
     assert "TEST" in results

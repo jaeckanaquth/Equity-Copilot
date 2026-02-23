@@ -92,3 +92,15 @@ class BeliefReviewOutcomeEvent(BaseModel):
     trigger: Literal["manual_review"] = "manual_review"
     outcome: ReviewOutcome
     note: Optional[str] = None
+
+
+class GroundingUpdatedEvent(BaseModel):
+    """Recorded when user Accepts a review_prompt and system attaches newest snapshot per ticker."""
+    event_id: UUID
+    schema_version: Literal["v1"] = "v1"
+    occurred_at: datetime
+    recorded_by: Literal["human"] = "human"
+    reasoning_id: UUID
+    event_kind: Literal["grounding_updated"] = "grounding_updated"
+    trigger: Literal["review_prompt_accepted"] = "review_prompt_accepted"
+    attached_snapshot_ids: List[str] = []

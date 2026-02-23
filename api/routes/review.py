@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from db.session import SessionLocal
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
+from core.repositories.question_answer_repository import QuestionAnswerRepository
 from core.services.introspection_service import IntrospectionService
 from core.services.belief_analysis_service import BeliefAnalysisService
 from core.services.artifact_integrity_service import ArtifactIntegrityService
@@ -37,7 +38,8 @@ def get_db():
 @router.get("/questions", response_model=Dict[str, List[OpenQuestionResponse]])
 def open_questions(db: Session = Depends(get_db)):
     artifact_repo = ArtifactRepository(db)
-    service = IntrospectionService(artifact_repo)
+    answer_repo = QuestionAnswerRepository(db)
+    service = IntrospectionService(artifact_repo, answer_repo.answered_question_ids())
     return service.get_open_questions()
 
 

@@ -62,6 +62,22 @@ class ArtifactRepository:
         objs = self.db.query(ArtifactORM).filter_by(artifact_type=artifact_type).all()
         return [_rehydrate(o.artifact_type, o.payload) for o in objs]
 
+    def update_belief_snapshot_refs(self, belief_id: str, new_snapshot_ids: list) -> None:
+        """
+        Update a belief's snapshot references (structural grounding only).
+        Allowed only for user-initiated actions (e.g. Accept review_prompt).
+        new_snapshot_ids: list of snapshot ID strings (UUID strings).
+        """
+        row = self.db.query(ArtifactORM).filter_by(artifact_id=belief_id).first()
+        if not row or row.artifact_type != "ReasoningArtifact":
+            raise ValueError(f"Belief not found or not a reasoning artifact: {belief_id}")
+        payload = dict(row.payload)
+        refs = dict(payload.get("references") or {})
+        refs["snapshot_ids"] = list(new_snapshot_ids)
+        payload["references"] = refs
+        row.payload = payload
+        self.db.commit()
+
 
 def _rehydrate(artifact_type: str, payload: dict):
     if artifact_type == "StockSnapshot":

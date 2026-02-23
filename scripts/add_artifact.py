@@ -4,7 +4,7 @@ Add a belief (thesis/risk) or question by statement and optional snapshot refs.
 Usage:
   python scripts/add_artifact.py list-snapshots
   python scripts/add_artifact.py belief "MSFT cloud growth will decelerate." [--snapshots ID1 ID2 ...] [--risk]
-  python scripts/add_artifact.py question "What is the margin trajectory for AWS?" [--snapshots ID1 ID2 ...]
+  python scripts/add_artifact.py question "What leading indicators would suggest AWS growth acceleration in the next quarter?" [--snapshots ID1 ID2 ...]
 """
 from __future__ import annotations
 

@@ -17,16 +17,19 @@ Proposals are **structural suggestions** the system generates when certain condi
 
 ---
 
-## Accept / Reject Are Acknowledgments Only
+## Accept / Reject
 
-Accept and Reject **do not**:
+**Reject** is acknowledgment only: it only updates the proposal’s status. No structural change.
 
-- Remove a stale belief from a section
-- Add a lifecycle event on the belief
-- Attach a snapshot
-- Change anything structural
+**Accept** for **review_prompt** (belief has newer snapshots) does the following:
 
-They only change the proposal’s state. The proposal lifecycle is kept **separate from the belief lifecycle** so that the audit trail lives in the proposals table and user agency is preserved (acknowledgment ≠ automatic artifact change).
+- Attaches the **newest snapshot per ticker** from the proposal’s “newer” list to the belief’s references (structural grounding update).
+- Appends a **grounding_updated** lifecycle event on the belief (audit trail).
+- Then marks the proposal accepted.
+
+So after Accept, the belief’s evidence boundary reflects “reviewed against new data”; the stale condition resolves and the proposal can expire when the engine runs. Reject does not attach snapshots or change the belief.
+
+**Accept for other proposal types** (e.g. **missing_grounding**) is acknowledgment only: no automatic attachment. Missing grounding still requires manual thought and attachment.
 
 ---
 

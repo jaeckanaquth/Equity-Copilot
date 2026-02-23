@@ -1,5 +1,5 @@
 """
-One-off: add the MSFT/AMZN/JPM and comparative beliefs from the example set.
+Seed ~7–8 beliefs: 2–3 per company (MSFT, AMZN, JPM) + 1–2 comparative.
 Uses all snapshots per ticker for each belief. Run after import_snapshots.
 
   conda activate snow
@@ -16,24 +16,20 @@ from db.session import SessionLocal
 from core.repositories.artifact_repository import ArtifactRepository
 from scripts.add_artifact import add_belief
 
-# (statement, risk, list of tickers for snapshot refs)
+# (statement, risk, list of tickers). Target: 2–3 per company, 1–2 comparative, ~7–8 total.
 BELIEFS = [
-    # Microsoft
+    # Microsoft (2)
     ("Azure-led revenue mix will support operating margin expansion over the next two quarters.", False, ["MSFT"]),
     ("AI-related infrastructure investment will not materially compress free cash flow in FY25.", True, ["MSFT"]),
-    ("Microsoft's enterprise demand remains structurally resilient despite macro uncertainty.", False, ["MSFT"]),
-    # Amazon
+    # Amazon (2)
     ("AWS growth stabilization will drive consolidated operating margin expansion.", False, ["AMZN"]),
     ("Retail operating income remains vulnerable to demand normalization.", True, ["AMZN"]),
-    ("Amazon's profitability trajectory is increasingly dependent on AWS rather than retail recovery.", False, ["AMZN"]),
-    # JPMorgan
+    # JPMorgan (2)
     ("Net interest margin has peaked and will compress as rates stabilize.", False, ["JPM"]),
     ("Credit costs will remain contained despite macro slowdown risk.", True, ["JPM"]),
-    ("Trading and fee income will not materially offset potential NIM compression.", False, ["JPM"]),
-    # Comparative
+    # Comparative (2)
     ("Microsoft's cloud margin profile is structurally more stable than Amazon's.", False, ["MSFT", "AMZN"]),
     ("AWS revenue growth will outpace Azure growth over the next two quarters.", False, ["MSFT", "AMZN"]),
-    ("JPMorgan earnings volatility is lower than large-cap tech peers in this cycle.", False, ["JPM", "MSFT", "AMZN"]),
 ]
 
 

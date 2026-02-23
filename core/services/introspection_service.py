@@ -1,15 +1,17 @@
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import Dict, List, Optional, Set
 from core.models.reasoning_artifact import ArtifactType
 
 
 class IntrospectionService:
 
-    def __init__(self, artifact_repo):
+    def __init__(self, artifact_repo, answered_question_ids: Optional[Set[str]] = None):
         self.artifact_repo = artifact_repo
+        self.answered_question_ids = answered_question_ids or set()
 
     def get_open_questions(self) -> Dict[str, List]:
+        """Questions that have no recorded answer (open = unanswered)."""
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         now = datetime.now(timezone.utc)
 
@@ -17,6 +19,8 @@ class IntrospectionService:
 
         for artifact in artifacts:
             if artifact.artifact_type != ArtifactType.question:
+                continue
+            if str(artifact.reasoning_id) in self.answered_question_ids:
                 continue
 
             age_days = (now - artifact.created_at).days

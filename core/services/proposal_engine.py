@@ -149,11 +149,14 @@ class ProposalEngine:
         Grouping key = exact string equality. No normalization.
         """
         active = self.proposal_repo.list_active()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         grouped: Dict[str, Dict[str, List[dict]]] = defaultdict(lambda: defaultdict(list))
 
         for row in active:
-            age_days = (now - row.created_at).days
+            created_at = row.created_at
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            age_days = (now - created_at).days
             belief_text = row.payload.get("belief_text", "")
             instance = {
                 "proposal_id": row.proposal_id,

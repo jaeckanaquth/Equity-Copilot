@@ -6,6 +6,7 @@ from db.session import SessionLocal
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.proposal_repository import ProposalRepository
+from core.repositories.question_answer_repository import QuestionAnswerRepository
 from core.services.introspection_service import IntrospectionService
 from core.services.belief_analysis_service import BeliefAnalysisService
 from core.services.artifact_integrity_service import ArtifactIntegrityService
@@ -34,7 +35,8 @@ def weekly_review(request: Request, db: Session = Depends(get_db)):
     proposal_engine.evaluate()
     proposals = proposal_engine.list_for_display()
 
-    introspection = IntrospectionService(artifact_repo)
+    answer_repo = QuestionAnswerRepository(db)
+    introspection = IntrospectionService(artifact_repo, answer_repo.answered_question_ids())
     belief_analysis = BeliefAnalysisService(artifact_repo, lifecycle_repo)
     integrity = ArtifactIntegrityService(artifact_repo)
 

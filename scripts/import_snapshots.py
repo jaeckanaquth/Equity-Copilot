@@ -229,13 +229,18 @@ def main(
 
 if __name__ == "__main__":
     import argparse
-    p = argparse.ArgumentParser(description="Import quarterly financials from Yahoo into StockSnapshots.")
-    p.add_argument("tickers", nargs="*", default=None, help="Tickers (e.g. MSFT AMZN JPM). Default: MSFT AMZN JPM")
+    p = argparse.ArgumentParser(
+        description="Import quarterly financials from Yahoo into StockSnapshots. One company at a time: pass one ticker and use --next-quarter to fetch only the latest quarter."
+    )
+    p.add_argument("tickers", nargs="*", default=None, help="Tickers (e.g. MSFT). One company: pass a single ticker.")
     p.add_argument("-q", "--quarters", type=int, default=MAX_QUARTERS, help="Max quarters per ticker")
+    p.add_argument("--next-quarter", action="store_true", help="Fetch only the latest quarter per ticker (same as -q 1). Use with one ticker to add the next quarter for that company.")
     p.add_argument("--clear", action="store_true", help="Remove all data first (artifacts, lifecycle, proposals)")
     args = p.parse_args()
+    tickers = args.tickers or DEFAULT_TICKERS
+    max_quarters = 1 if args.next_quarter else args.quarters
     main(
-        tickers=args.tickers or DEFAULT_TICKERS,
-        max_quarters=args.quarters,
+        tickers=tickers,
+        max_quarters=max_quarters,
         clear_first=args.clear,
     )

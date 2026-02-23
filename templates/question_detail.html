@@ -7,6 +7,10 @@
         a { color: #2563eb; }
         .draft-section { margin-top: 1.5rem; padding: 1rem; border: 1px solid #e5e5e4; border-radius: 6px; background: #fafaf9; }
         .draft-output { margin-top: 0.5rem; padding: 0.75rem; background: #fff; border: 1px solid #e5e5e4; border-radius: 4px; white-space: pre-wrap; font-size: 0.9rem; }
+        .answer-form { margin: 1rem 0; }
+        .answer-form textarea { width: 100%; max-width: 32rem; display: block; margin: 0.5rem 0; padding: 0.5rem; border: 1px solid #e5e5e4; border-radius: 4px; font: inherit; }
+        .answer-display { padding: 0.75rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; margin-bottom: 0.5rem; }
+        .muted { color: #737373; font-size: 0.875rem; margin-top: 0.5rem; }
         button { padding: 0.4rem 0.75rem; cursor: pointer; margin-right: 0.5rem; background: #2563eb; color: #fff; border: none; border-radius: 4px; }
         button:hover { background: #1d4ed8; }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -20,6 +24,20 @@
     <p><strong>Created At:</strong> {{ question.created_at }}</p>
     <p><strong>Text:</strong></p>
     <p>{{ question.claim.statement }}</p>
+
+    <h3>Your answer</h3>
+    {% if answer %}
+    <div class="answer-display">
+        <p>{{ answer.answer_text }}</p>
+        <p class="muted">Answered {{ answer.answered_at }}</p>
+    </div>
+    <p>You can update your answer below.</p>
+    {% endif %}
+    <form action="/api/questions/{{ question.reasoning_id }}/answer" method="post" class="answer-form">
+        <label for="answer">Answer</label>
+        <textarea id="answer" name="answer" rows="4" placeholder="Record your answer or notes...">{% if answer %}{{ answer.answer_text }}{% endif %}</textarea>
+        <button type="submit">{% if answer %}Update answer{% else %}Save answer{% endif %}</button>
+    </form>
 
     <div class="draft-section">
         <h3>Drafting Assistant</h3>

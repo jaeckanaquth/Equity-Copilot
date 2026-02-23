@@ -11,14 +11,18 @@ from tests.fixtures.snapshot_factory import make_snapshot
 
 def test_proposal_evaluate_idempotent(artifact_repo, lifecycle_repo, db_session):
     """Refresh 10 times — proposal count stays constant."""
-    snapshot_id = uuid4()
+    old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
         created_at=datetime.now(timezone.utc) - timedelta(days=30),
-        snapshot_ids=[snapshot_id],
+        snapshot_ids=[old_snapshot_id],
         statement="Stale belief for proposal test",
     )
-    snapshot = make_snapshot(
-        snapshot_id=snapshot_id,
+    old_snapshot = make_snapshot(
+        snapshot_id=old_snapshot_id,
+        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+    )
+    new_snapshot = make_snapshot(
+        snapshot_id=uuid4(),
         as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
@@ -27,7 +31,8 @@ def test_proposal_evaluate_idempotent(artifact_repo, lifecycle_repo, db_session)
     )
 
     artifact_repo.save(belief_stale)
-    artifact_repo.save(snapshot)
+    artifact_repo.save(old_snapshot)
+    artifact_repo.save(new_snapshot)
     artifact_repo.save(belief_ungrounded)
 
     proposal_repo = ProposalRepository(db_session)
@@ -44,14 +49,18 @@ def test_proposal_evaluate_idempotent(artifact_repo, lifecycle_repo, db_session)
 
 def test_accept_reject_prevents_recreation(artifact_repo, lifecycle_repo, db_session):
     """Accept/reject resolves proposal; evaluate does not recreate it."""
-    snapshot_id = uuid4()
+    old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
         created_at=datetime.now(timezone.utc) - timedelta(days=30),
-        snapshot_ids=[snapshot_id],
+        snapshot_ids=[old_snapshot_id],
         statement="Stale belief",
     )
-    snapshot = make_snapshot(
-        snapshot_id=snapshot_id,
+    old_snapshot = make_snapshot(
+        snapshot_id=old_snapshot_id,
+        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+    )
+    new_snapshot = make_snapshot(
+        snapshot_id=uuid4(),
         as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
@@ -59,7 +68,8 @@ def test_accept_reject_prevents_recreation(artifact_repo, lifecycle_repo, db_ses
         statement="Ungrounded belief",
     )
     artifact_repo.save(belief_stale)
-    artifact_repo.save(snapshot)
+    artifact_repo.save(old_snapshot)
+    artifact_repo.save(new_snapshot)
     artifact_repo.save(belief_ungrounded)
 
     proposal_repo = ProposalRepository(db_session)
@@ -154,14 +164,18 @@ def test_invariant_at_most_one_non_expired_per_belief_type(
     artifact_repo, lifecycle_repo, db_session,
 ):
     """Invariant: at most 1 non-expired proposal per (belief_id, proposal_type)."""
-    snapshot_id = uuid4()
+    old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
         created_at=datetime.now(timezone.utc) - timedelta(days=30),
-        snapshot_ids=[snapshot_id],
+        snapshot_ids=[old_snapshot_id],
         statement="Stale belief",
     )
-    snapshot = make_snapshot(
-        snapshot_id=snapshot_id,
+    old_snapshot = make_snapshot(
+        snapshot_id=old_snapshot_id,
+        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+    )
+    new_snapshot = make_snapshot(
+        snapshot_id=uuid4(),
         as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
@@ -169,7 +183,8 @@ def test_invariant_at_most_one_non_expired_per_belief_type(
         statement="Ungrounded belief",
     )
     artifact_repo.save(belief_stale)
-    artifact_repo.save(snapshot)
+    artifact_repo.save(old_snapshot)
+    artifact_repo.save(new_snapshot)
     artifact_repo.save(belief_ungrounded)
 
     proposal_repo = ProposalRepository(db_session)

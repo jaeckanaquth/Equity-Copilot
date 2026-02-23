@@ -96,6 +96,10 @@ class ProposalRepository:
         """Mark proposal expired (automatic when condition resolves)."""
         self.update_status(proposal_id, "expired")
 
+    def get_by_id(self, proposal_id: str) -> ProposalORM | None:
+        """Return proposal row by id, or None."""
+        return self.db.query(ProposalORM).filter_by(proposal_id=proposal_id).first()
+
     def resolve(self, proposal_id: str, resolution: str):
         """Resolve via user action (accept or reject). Delegates to update_status."""
         if resolution not in ("accepted", "rejected"):
@@ -103,9 +107,9 @@ class ProposalRepository:
         self.update_status(proposal_id, resolution)
 
     def expire_older_than_days(self, days: int):
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
 
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         (
             self.db.query(ProposalORM)
             .filter(ProposalORM.status == "pending", ProposalORM.created_at < cutoff)
