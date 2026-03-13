@@ -127,6 +127,13 @@ Accept and reject are **acknowledgments only**: they do not change beliefs, snap
 
 ---
 
+## 4b. Reports (read-only)
+
+- **Observed outcomes:** Beliefs with current decision, plus portfolio return periods and per-belief return placeholders. From the weekly review, use **Observed outcomes** (or call `GET /api/reports/observed-outcomes` for JSON, or `?format=csv` for CSV).
+- **Other reports:** Decision summary, beliefs by decision, durability, tension-density, trajectories, portfolio returns — see [MASTER.md](MASTER.md) §12 Quick reference.
+
+---
+
 ## 5. Wait for next quarter import
 
 - After the next quarter’s data is available, run the import again (same command as step 1). New quarter snapshots will be added; existing quarters are skipped.
@@ -176,3 +183,4 @@ Use the table below (or a separate doc) to log friction as you run the live fire
 | Accept proposal     | `POST /proposals/{id}/accept` |
 | Reject proposal     | `POST /proposals/{id}/reject` |
 | Answer a question   | Open `/questions/{id}` → fill Answer → Save answer |
+| Observed outcomes (JSON/CSV) | [GET /api/reports/observed-outcomes](http://localhost:8000/api/reports/observed-outcomes) — add `?format=csv` for CSV |
