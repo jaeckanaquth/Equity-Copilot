@@ -27,3 +27,22 @@ class BeliefLifecycleRepository:
             .filter_by(belief_id=belief_id)\
             .order_by(BeliefLifecycleEventORM.created_at.asc())\
             .all()
+
+    def list_decision_events(self, since=None, decision_type=None):
+        """List all lifecycle events with event_kind=decision; filter in Python for SQLite compatibility."""
+        rows = self.db.query(BeliefLifecycleEventORM).order_by(
+            BeliefLifecycleEventORM.created_at.desc()
+        ).all()
+        out = []
+        for r in rows:
+            p = r.payload or {}
+            if p.get("event_kind") != "decision":
+                continue
+            if since is not None and r.created_at < since:
+                continue
+            if decision_type is not None:
+                dt = (p.get("decision") or {}).get("type")
+                if dt != decision_type:
+                    continue
+            out.append(r)
+        return out

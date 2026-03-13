@@ -1,5 +1,6 @@
 """Proposal lifecycle: accept / reject + audit."""
 from datetime import datetime, timezone
+from urllib.parse import quote
 from uuid import uuid4, UUID
 
 from fastapi import APIRouter, Depends, Request, HTTPException
@@ -67,6 +68,7 @@ def accept_proposal(proposal_id: str, request: Request, db=Depends(get_db)):
         return RedirectResponse(url="/weekly-review", status_code=303)
 
     payload = row.payload or {}
+    grounding_detail = None
     if row.proposal_type == "review_prompt" and payload.get("belief_id"):
         artifact_repo = ArtifactRepository(db)
         lifecycle_repo = BeliefLifecycleRepository(db)
@@ -87,11 +89,22 @@ def accept_proposal(proposal_id: str, request: Request, db=Depends(get_db)):
                     reasoning_id=UUID(belief_id),
                     attached_snapshot_ids=newest_per_ticker,
                 ))
+                parts = []
+                for sid in newest_per_ticker:
+                    s = artifact_repo.get(sid)
+                    if s and getattr(s, "company", None) and getattr(s, "metadata", None):
+                        ticker = (getattr(s.company, "ticker") or "").strip() or "?"
+                        as_of = getattr(s.metadata, "as_of", None)
+                        parts.append(f"{ticker} {as_of}" if as_of else ticker)
+                grounding_detail = ", ".join(parts) if parts else None
 
     proposal_repo.resolve(proposal_id, "accepted")
     if _is_fetch(request):
         return Response(status_code=204)
-    return RedirectResponse(url="/weekly-review", status_code=303)
+    url = "/weekly-review"
+    if grounding_detail:
+        url = f"/weekly-review?grounding_updated=1&detail={quote(grounding_detail)}"
+    return RedirectResponse(url=url, status_code=303)
 
 
 @router.post("/proposals/{proposal_id}/reject")

@@ -131,6 +131,9 @@
 </head>
 <body>
     <h1>Weekly Review</h1>
+    {% if grounding_updated and grounding_detail %}
+    <p class="grounding-banner" style="margin-bottom:1rem;padding:0.5rem 0.75rem;background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#166534;font-size:0.9rem;">Grounding updated with {{ grounding_detail }}.</p>
+    {% endif %}
     <p><a href="/beliefs/new">Add belief</a> · <a href="/questions/new">Add question</a></p>
 
     <h2>All Beliefs ({{ all_beliefs_total }})</h2>
@@ -202,7 +205,7 @@
         <table>
         <tr>
             <th>Belief</th>
-            <th title="How old is the data this belief is grounded in?">Data age (days)</th>
+            <th title="Days since the newest snapshot this belief is grounded in">Days since last grounded snapshot</th>
             <th>New Snapshots</th>
         </tr>
         {% for b in items %}
@@ -221,6 +224,32 @@
     {% endfor %}
     {% else %}
     <p class="empty">No stale beliefs.</p>
+    {% endif %}
+    </div>
+
+    <h2>Due for review (cadence) ({{ cadence_due_total }})</h2>
+    <div class="section">
+    {% if cadence_due %}
+    <table>
+    <tr>
+        <th>Belief</th>
+        <th>Due</th>
+        <th>Cadence</th>
+    </tr>
+    {% for b in cadence_due %}
+    <tr>
+        <td>
+            <a href="/beliefs/{{ b.belief_id }}">
+                {{ b.belief_text[:120] }}{% if b.belief_text|length > 120 %}...{% endif %}
+            </a>
+        </td>
+        <td>{{ b.next_review_by }}</td>
+        <td>{% if b.cadence_days %}every {{ b.cadence_days }} days{% else %}—{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">No beliefs due by cadence.</p>
     {% endif %}
     </div>
 
@@ -295,7 +324,7 @@
             <span class="proposal-actions">
                 <button type="button" class="btn-sm btn-explain proposal-explain">Explain</button>
                 <form action="/proposals/{{ i.proposal_id }}/accept" method="post" class="proposal-form">
-                    <button type="submit" class="btn-sm btn-accept">Accept</button>
+                    <button type="submit" class="btn-sm btn-accept">{% if i.proposal_type == 'review_prompt' %}Accept & Attach Latest Data{% else %}Accept{% endif %}</button>
                 </form>
                 <form action="/proposals/{{ i.proposal_id }}/reject" method="post" class="proposal-form">
                     <button type="submit" class="btn-sm btn-reject">Reject</button>
@@ -329,10 +358,11 @@
             out.textContent = 'Loading...';
             out.style.display = 'block';
             try {
+                const proposalId = li.dataset.proposalId || null;
                 const r = await fetch('/api/llm/explain-proposal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState })
+                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState, proposal_id: proposalId })
                 });
                 const d = await r.json().catch(() => ({}));
                 out.textContent = r.ok ? (d.text || '') : (d.detail || 'Error');

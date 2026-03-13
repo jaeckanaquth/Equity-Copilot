@@ -10,6 +10,7 @@ from api.routes.artifact_detail import router as artifact_detail_router
 from api.routes.proposals import router as proposals_router
 from api.routes.llm import router as llm_router
 from api.routes.artifacts import router as artifacts_router
+from api.routes.reports import router as reports_router
 from db.init_db import init_db
 
 
@@ -36,3 +37,4 @@ app.include_router(proposals_router)
 app.include_router(llm_router)
 app.include_router(artifacts_router)  # before detail so /beliefs/new and /questions/new match first
 app.include_router(artifact_detail_router)
+app.include_router(reports_router)

@@ -3,7 +3,7 @@ Yahoo Finance → StockSnapshot ingestion.
 
 Architecture rule:
 - Produces StockSnapshot objects only.
-- Never bypasses Phase 1 model.
+- Never bypasses snapshot model.
 - Never auto-creates beliefs, proposals, or runs LLM.
 - Snapshots are immutable: if one for this ticker+quarter exists → skip.
 """
@@ -25,6 +25,8 @@ from db.session import SessionLocal
 from db.models.artifact import ArtifactORM
 from db.models.lifecycle import BeliefLifecycleEventORM
 from db.models.proposal import ProposalORM
+from db.models.review_cadence import BeliefReviewCadenceORM
+from db.models.observed_returns import ObservedReturnPeriodORM, BeliefReturnObservationORM
 from core.repositories.artifact_repository import ArtifactRepository
 from core.models.stock_snapshot import (
     StockSnapshot,
@@ -181,9 +183,12 @@ def build_snapshots_from_yahoo(ticker: str, max_quarters: int = MAX_QUARTERS) ->
 
 
 def clear_all_data(db) -> None:
-    """Remove all artifacts, lifecycle events, and proposals. Use with care."""
+    """Remove all artifacts, lifecycle events, proposals, cadence, and observed returns. Use with care."""
     db.query(ProposalORM).delete()
     db.query(BeliefLifecycleEventORM).delete()
+    db.query(BeliefReviewCadenceORM).delete()
+    db.query(BeliefReturnObservationORM).delete()
+    db.query(ObservedReturnPeriodORM).delete()
     db.query(ArtifactORM).delete()
     db.commit()
 
@@ -199,7 +204,7 @@ def main(
 
     if clear_first:
         clear_all_data(db)
-        print("Cleared all artifacts, lifecycle events, and proposals.\n")
+        print("Cleared all artifacts, lifecycle events, proposals, cadence, and observed returns.\n")
 
     saved = 0
     skipped = 0

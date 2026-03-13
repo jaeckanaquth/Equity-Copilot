@@ -8,6 +8,8 @@ from uuid import UUID
 from pydantic import BaseModel
 from typing_extensions import Literal
 
+from core.models.reasoning_artifact import ConfidenceLevel
+
 
 # -----------------------------
 # Enums
@@ -104,3 +106,67 @@ class GroundingUpdatedEvent(BaseModel):
     event_kind: Literal["grounding_updated"] = "grounding_updated"
     trigger: Literal["review_prompt_accepted"] = "review_prompt_accepted"
     attached_snapshot_ids: List[str] = []
+
+
+# -----------------------------
+# Belief decision (structural, human-only, append-only)
+# -----------------------------
+
+DecisionType = Literal[
+    "reinforced",
+    "slight_tension",
+    "strong_tension",
+    "revised",
+    "abandoned",
+    "confidence_increased",
+    "confidence_decreased",
+    "deferred",
+    "other",
+]
+
+DecisionTrigger = Literal["manual", "record_outcome", "cadence_mark", "proposal_accept"]
+
+
+class DecisionFollowUp(BaseModel):
+    action: Optional[Literal["none", "set_cadence", "archive", "reseed_beliefs", "notify"]] = "none"
+    params: Optional[dict] = None
+
+
+class DecisionPayload(BaseModel):
+    type: DecisionType
+    sub_type: Optional[str] = None
+    rationale: Optional[str] = None
+    linked_snapshot_ids: List[UUID] = []
+    related_lifecycle_event_ids: List[UUID] = []
+    follow_up: Optional[DecisionFollowUp] = None
+    metadata: Optional[dict] = None
+
+
+class BeliefDecisionEvent(BaseModel):
+    """Append-only decision record. Stored as lifecycle event with event_kind='decision'."""
+    event_id: UUID
+    schema_version: Literal["v1"] = "v1"
+    occurred_at: datetime
+    recorded_by: Literal["human"] = "human"
+    reasoning_id: UUID
+    event_kind: Literal["decision"] = "decision"
+    trigger: DecisionTrigger = "manual"
+    decision: DecisionPayload
+
+
+# -----------------------------
+# Manual confidence (human-set only; no auto-scoring)
+# -----------------------------
+
+
+class BeliefConfidenceEvent(BaseModel):
+    """Stored as lifecycle event with event_kind='confidence'. Latest defines current confidence."""
+    event_id: UUID
+    schema_version: Literal["v1"] = "v1"
+    occurred_at: datetime
+    recorded_by: Literal["human"] = "human"
+    reasoning_id: UUID
+    event_kind: Literal["confidence"] = "confidence"
+    trigger: Literal["manual"] = "manual"
+    confidence_level: ConfidenceLevel
+    rationale: Optional[str] = None

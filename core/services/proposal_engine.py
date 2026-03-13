@@ -1,5 +1,5 @@
 """
-Phase 3.2 — Deterministic proposal engine.
+Deterministic proposal engine.
 
 Generates structural proposals only. No LLM. No synthesis.
 

@@ -1,4 +1,4 @@
-"""Phase 3.3 — LLM assistive endpoints. Optional, attributable, no mutation."""
+"""LLM assistive endpoints. Optional, attributable, no mutation."""
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -203,6 +203,7 @@ class ExplainProposalRequest(BaseModel):
     proposal_type: str
     belief_text: str
     condition_state: dict | None = None
+    proposal_id: str | None = None
 
 
 def _get_stale_context_for_belief(db: Session, belief_id: str) -> dict | None:
@@ -283,17 +284,46 @@ def analyze_belief(
     )
 
 
+def _proposal_explain_prefix(proposal_type: str, proposal_id: str | None, db: Session) -> str:
+    """Prepend a concrete line for review_prompt: newer snapshot(s) dated X."""
+    if proposal_type != "review_prompt" or not proposal_id:
+        return ""
+    proposal_repo = ProposalRepository(db)
+    row = proposal_repo.get_by_id(proposal_id)
+    if not row or not row.payload:
+        return ""
+    newer_ids = row.payload.get("newer_snapshot_ids") or []
+    if not newer_ids:
+        return ""
+    artifact_repo = ArtifactRepository(db)
+    dates = []
+    for sid in newer_ids[:10]:  # cap for display
+        s = artifact_repo.get(str(sid))
+        if s and getattr(s, "metadata", None) and getattr(s, "company", None):
+            ticker = (getattr(s.company, "ticker") or "").strip() or "?"
+            as_of = getattr(s.metadata, "as_of", None)
+            dates.append(f"{ticker} {as_of}" if as_of else ticker)
+    if not dates:
+        return ""
+    return "This proposal exists because newer snapshot(s) dated " + ", ".join(dates) + " were detected.\n\n"
+
+
 @router.post("/api/llm/explain-proposal", response_model=TextResponse)
-def explain_proposal(req: ExplainProposalRequest, llm: LLMService = Depends(get_llm)):
+def explain_proposal(
+    req: ExplainProposalRequest,
+    llm: LLMService = Depends(get_llm),
+    db: Session = Depends(get_db),
+):
     """Explain why a structural proposal was triggered. Plain language. Separate from Draft/Analyze."""
     if not llm.available:
         raise HTTPException(503, "LLM not configured. Run ollama serve and ensure a model is installed (see ollama list).")
+    prefix = _proposal_explain_prefix(req.proposal_type, req.proposal_id, db)
     text = llm.explain_proposal_trigger(
         req.proposal_type,
         req.belief_text,
         req.condition_state,
     )
     return TextResponse(
-        text=text,
+        text=prefix + text,
         attribution="LLM Structural Explanation — Why this proposal was triggered.",
     )

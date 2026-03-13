@@ -19,6 +19,21 @@
         .outcome-msg { margin-left: 0.5rem; font-size: 0.9rem; color: #15803d; }
         .lifecycle-review-outcome { color: #57534e; }
         .lifecycle-review-note { font-size: 0.9rem; color: #78716c; margin-left: 1rem; }
+        .lifecycle-decision { color: #4338ca; }
+        .lifecycle-decision-rationale { font-size: 0.9rem; color: #6366f1; margin-left: 1rem; }
+        .lifecycle-confidence { color: #15803d; }
+        .decision-radios label { display: inline-block; margin-right: 0.75rem; }
+        .decision-radios input { margin-right: 0.25rem; }
+        .decision-rationale { width: 100%; max-width: 420px; min-height: 60px; padding: 0.35rem 0.5rem; border: 1px solid #e5e5e4; border-radius: 4px; font: inherit; resize: vertical; }
+        .current-decision-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; background: #e0e7ff; color: #3730a3; }
+        .current-decision-badge.strong_tension { background: #fee2e2; color: #991b1b; }
+        .current-decision-badge.slight_tension { background: #fef3c7; color: #92400e; }
+        .current-decision-badge.reinforced { background: #d1fae5; color: #065f46; }
+        .current-decision-badge.abandoned { background: #f3f4f6; color: #4b5563; }
+        .decision-timeline-list { list-style: none; padding-left: 0; }
+        .decision-timeline-list li { margin-bottom: 0.35rem; font-size: 0.9rem; }
+        .decision-timeline-date { color: #57534e; margin-right: 0.5rem; }
+        .cadence-display { font-size: 0.9rem; color: #57534e; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
@@ -28,6 +43,18 @@
     <p><strong>ID:</strong> {{ belief.reasoning_id }}</p>
     <p><strong>Created At:</strong> {{ belief.created_at }}</p>
     <p><strong>Type:</strong> {{ belief.artifact_type }}</p>
+
+    {% if current_decision_state %}
+    <p><strong>Current decision</strong> <span class="current-decision-badge {{ current_decision_state.type }}">{% if current_decision_state.type == "reinforced" %}Reinforced{% elif current_decision_state.type == "slight_tension" %}Slight tension{% elif current_decision_state.type == "strong_tension" %}Strong tension{% elif current_decision_state.type == "revised" %}Revised{% elif current_decision_state.type == "abandoned" %}Abandoned{% elif current_decision_state.type == "confidence_increased" %}Confidence ↑{% elif current_decision_state.type == "confidence_decreased" %}Confidence ↓{% elif current_decision_state.type == "deferred" %}Deferred{% else %}{{ current_decision_state.type }}{% endif %}</span> <span class="draft-attribution">(derived from latest decision — not stored)</span></p>
+    {% else %}
+    <p><strong>Current decision</strong> <span class="draft-attribution">None recorded (derived view)</span></p>
+    {% endif %}
+
+    {% if current_confidence %}
+    <p><strong>Current confidence</strong> {{ current_confidence.level | capitalize }} (set {{ current_confidence.occurred_at }}){% if current_confidence.rationale %} — {{ current_confidence.rationale }}{% endif %}</p>
+    {% else %}
+    <p><strong>Current confidence</strong> <span class="draft-attribution">Not set</span></p>
+    {% endif %}
 
     <p><strong>Text:</strong></p>
     <p>{{ belief.claim.statement }}</p>
@@ -73,6 +100,80 @@
         </form>
     </div>
 
+    <div class="draft-section" style="border-color:#c7d2fe;">
+        <h3>Record decision</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Structural record only. Does not change belief text. Append-only.</p>
+        <form id="decision-form">
+            <div class="decision-radios" style="margin-bottom:0.5rem;">
+                <label><input type="radio" name="decision_type" value="reinforced"> Reinforced</label>
+                <label><input type="radio" name="decision_type" value="slight_tension"> Slight tension</label>
+                <label><input type="radio" name="decision_type" value="strong_tension"> Strong tension</label>
+                <label><input type="radio" name="decision_type" value="revised"> Revised</label>
+                <label><input type="radio" name="decision_type" value="abandoned"> Abandoned</label>
+                <label><input type="radio" name="decision_type" value="confidence_increased"> Confidence ↑</label>
+                <label><input type="radio" name="decision_type" value="confidence_decreased"> Confidence ↓</label>
+                <label><input type="radio" name="decision_type" value="deferred"> Deferred</label>
+                <label><input type="radio" name="decision_type" value="other"> Other</label>
+            </div>
+            <div style="margin-top:0.5rem;">
+                <textarea name="rationale" id="decision-rationale" placeholder="Optional rationale" maxlength="2000" class="decision-rationale"></textarea>
+            </div>
+            <div style="margin-top:0.75rem;">
+                <button type="submit" id="decision-btn">Record decision</button>
+                <span id="decision-msg" class="outcome-msg" style="display:none;"></span>
+            </div>
+        </form>
+    </div>
+
+    <div class="draft-section" style="border-color:#bbf7d0;">
+        <h3>Set confidence (optional)</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Human-set only. No auto-scoring.</p>
+        <form id="confidence-form">
+            <div class="outcome-radios" style="margin-bottom:0.5rem;">
+                <label><input type="radio" name="confidence_level" value="low"> Low</label>
+                <label><input type="radio" name="confidence_level" value="medium"> Medium</label>
+                <label><input type="radio" name="confidence_level" value="high"> High</label>
+            </div>
+            <div style="margin-top:0.5rem;">
+                <input type="text" name="rationale" id="confidence-rationale" placeholder="Optional rationale" maxlength="500" class="outcome-note">
+            </div>
+            <div style="margin-top:0.75rem;">
+                <button type="submit" id="confidence-btn">Save confidence</button>
+                <span id="confidence-msg" class="outcome-msg" style="display:none; margin-left:0.5rem;"></span>
+            </div>
+        </form>
+    </div>
+
+    <div class="draft-section" style="border-color:#a7f3d0;">
+        <h3>Review cadence (optional)</h3>
+        <p class="draft-attribution" style="margin-bottom:0.5rem;">Calendar-driven reminder. When you want to review this belief again.</p>
+        {% if cadence %}
+        <p class="cadence-display">Next review by: <strong>{{ cadence.next_review_by }}</strong>{% if cadence.cadence_days %}. Repeat every {{ cadence.cadence_days }} days.{% endif %}</p>
+        {% endif %}
+        <form id="cadence-form">
+            <div style="margin-bottom:0.5rem;">
+                <label>Next review by (YYYY-MM-DD)</label>
+                <input type="date" name="next_review_by" id="cadence-next" required style="margin-left:0.5rem; padding:0.25rem;">
+            </div>
+            <div style="margin-bottom:0.5rem;">
+                <label>Repeat every (days, optional)</label>
+                <select name="cadence_days" id="cadence-days" style="margin-left:0.5rem;">
+                    <option value="">No repeat</option>
+                    <option value="7">7</option>
+                    <option value="14">14</option>
+                    <option value="30">30</option>
+                </select>
+            </div>
+            <div style="margin-top:0.75rem;">
+                <button type="submit" id="cadence-save-btn">Save cadence</button>
+                {% if cadence %}
+                <button type="button" id="cadence-clear-btn" style="background:#78716c; margin-left:0.5rem;">Clear cadence</button>
+                {% endif %}
+                <span id="cadence-msg" class="outcome-msg" style="display:none; margin-left:0.5rem;"></span>
+            </div>
+        </form>
+    </div>
+
     <script>
         document.getElementById('draft-btn').onclick = async () => {
             const btn = document.getElementById('draft-btn');
@@ -81,7 +182,7 @@
             btn.disabled = true;
             out.style.display = 'none';
             try {
-                const r = await fetch('/api/llm/draft-belief-from-id', {
+                const r = await fetch('../api/llm/draft-belief-from-id', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ belief_id: '{{ belief.reasoning_id }}' })
@@ -105,7 +206,7 @@
             btn.disabled = true;
             out.style.display = 'none';
             try {
-                const r = await fetch('/api/llm/analyze-belief/{{ belief.reasoning_id }}', { method: 'POST' });
+                const r = await fetch('../api/llm/analyze-belief/{{ belief.reasoning_id }}', { method: 'POST' });
                 const data = await r.json().catch(() => ({}));
                 if (r.ok) {
                     document.getElementById('delta-summary').textContent = data.delta_summary || '';
@@ -136,7 +237,7 @@
             btn.disabled = true;
             msg.style.display = 'none';
             try {
-                const r = await fetch('/api/beliefs/{{ belief.reasoning_id }}/review-outcome', {
+                const r = await fetch('../api/beliefs/{{ belief.reasoning_id }}/review-outcome', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ outcome: outcome.value, note: (noteEl && noteEl.value) || null })
@@ -155,15 +256,149 @@
                 }
             } finally { btn.disabled = false; }
         });
+        document.getElementById('confidence-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const levelEl = form.querySelector('input[name="confidence_level"]:checked');
+            const rationaleEl = document.getElementById('confidence-rationale');
+            const btn = document.getElementById('confidence-btn');
+            const msg = document.getElementById('confidence-msg');
+            if (!levelEl) { msg.textContent = 'Choose a level.'; msg.style.color = '#991b1b'; msg.style.display = 'inline'; return; }
+            btn.disabled = true;
+            msg.style.display = 'none';
+            try {
+                const r = await fetch('../api/beliefs/{{ belief.reasoning_id }}/confidence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confidence_level: levelEl.value, rationale: (rationaleEl && rationaleEl.value) ? rationaleEl.value.trim() : null })
+                });
+                if (r.status === 201) {
+                    msg.textContent = 'Saved.';
+                    msg.style.color = '#15803d';
+                    msg.style.display = 'inline';
+                    form.reset();
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    const d = await r.json().catch(() => ({}));
+                    msg.textContent = d.detail || 'Error';
+                    msg.style.color = '#991b1b';
+                    msg.style.display = 'inline';
+                }
+            } finally { btn.disabled = false; }
+        });
+        document.getElementById('decision-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const decisionType = form.querySelector('input[name="decision_type"]:checked');
+            const rationaleEl = document.getElementById('decision-rationale');
+            const btn = document.getElementById('decision-btn');
+            const msg = document.getElementById('decision-msg');
+            if (!decisionType) { msg.textContent = 'Choose a decision type.'; msg.style.display = 'inline'; msg.style.color = '#991b1b'; return; }
+            btn.disabled = true;
+            msg.style.display = 'none';
+            try {
+                const r = await fetch('../api/beliefs/{{ belief.reasoning_id }}/decision', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: decisionType.value,
+                        rationale: (rationaleEl && rationaleEl.value) ? rationaleEl.value.trim() : null,
+                        linked_snapshot_ids: [],
+                        related_lifecycle_event_ids: []
+                    })
+                });
+                if (r.status === 201) {
+                    msg.textContent = 'Decision recorded.';
+                    msg.style.color = '#15803d';
+                    msg.style.display = 'inline';
+                    form.reset();
+                    setTimeout(() => window.location.reload(), 600);
+                } else {
+                    const d = await r.json().catch(() => ({}));
+                    msg.textContent = (Array.isArray(d.detail) ? d.detail.map(x => x.msg || x).join(', ') : (d.detail || 'Error'));
+                    msg.style.color = '#991b1b';
+                    msg.style.display = 'inline';
+                }
+            } finally { btn.disabled = false; }
+        });
+        document.getElementById('cadence-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nextEl = document.getElementById('cadence-next');
+            const daysEl = document.getElementById('cadence-days');
+            const btn = document.getElementById('cadence-save-btn');
+            const msg = document.getElementById('cadence-msg');
+            const nextVal = nextEl && nextEl.value;
+            if (!nextVal) { msg.textContent = 'Pick a date.'; msg.style.color = '#991b1b'; msg.style.display = 'inline'; return; }
+            btn.disabled = true;
+            msg.style.display = 'none';
+            try {
+                const r = await fetch('../api/beliefs/{{ belief.reasoning_id }}/cadence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ next_review_by: nextVal, cadence_days: daysEl && daysEl.value ? parseInt(daysEl.value, 10) : null })
+                });
+                if (r.status === 201) {
+                    msg.textContent = 'Cadence saved.';
+                    msg.style.color = '#15803d';
+                    msg.style.display = 'inline';
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    const d = await r.json().catch(() => ({}));
+                    msg.textContent = d.detail || 'Error';
+                    msg.style.color = '#991b1b';
+                    msg.style.display = 'inline';
+                }
+            } finally { btn.disabled = false; }
+        });
+        const clearBtn = document.getElementById('cadence-clear-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', async () => {
+                clearBtn.disabled = true;
+                try {
+                    const r = await fetch('../api/beliefs/{{ belief.reasoning_id }}/cadence', { method: 'DELETE' });
+                    if (r.status === 204) window.location.reload();
+                } finally { clearBtn.disabled = false; }
+                }
+            );
+        }
     </script>
 
-    <h3>Referenced Snapshots</h3>
-    <ul>
-    {% for sid in belief.references.snapshot_ids %}
-        <li><a href="/snapshots/{{ sid }}">{{ sid }}</a></li>
+    <h3>Decision Timeline</h3>
+    <p class="draft-attribution">Derived from lifecycle — not a separate table.</p>
+    {% if decision_timeline %}
+    <ul class="decision-timeline-list">
+    {% for entry in decision_timeline %}
+        <li><span class="decision-timeline-date">[{{ entry.occurred_at[:10] if entry.occurred_at else '' }}]</span>{% if entry.type == "reinforced" %}Reinforced{% elif entry.type == "slight_tension" %}Slight tension{% elif entry.type == "strong_tension" %}Strong tension{% elif entry.type == "revised" %}Revised{% elif entry.type == "abandoned" %}Abandoned{% elif entry.type == "confidence_increased" %}Confidence ↑{% elif entry.type == "confidence_decreased" %}Confidence ↓{% elif entry.type == "deferred" %}Deferred{% else %}{{ entry.type }}{% endif %}{% if entry.rationale %} — {{ entry.rationale }}{% endif %}</li>
     {% endfor %}
     </ul>
-    {% if not belief.references.snapshot_ids %}
+    {% else %}
+    <p>None.</p>
+    {% endif %}
+
+    <h3>Referenced Snapshots (grounding)</h3>
+    {% if referenced_snapshots %}
+    <table style="width:100%; max-width:420px; border-collapse:collapse; font-size:0.9rem;">
+        <thead>
+            <tr style="border-bottom:1px solid #e5e5e4;">
+                <th style="text-align:left;padding:0.35rem 0.5rem;color:#57534e;">Ticker</th>
+                <th style="text-align:left;padding:0.35rem 0.5rem;color:#57534e;">As of</th>
+                <th style="text-align:left;padding:0.35rem 0.5rem;color:#57534e;"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ref in referenced_snapshots %}
+            <tr style="border-bottom:1px solid #e5e5e4;{% if ref.is_latest_grounding %} background:#dcfce7; font-weight:500;{% endif %}">
+                <td style="padding:0.35rem 0.5rem;">{{ ref.ticker }}</td>
+                <td style="padding:0.35rem 0.5rem;">{{ ref.as_of }}</td>
+                <td style="padding:0.35rem 0.5rem;">
+                    {% if ref.is_latest_grounding %}<span style="color:#166534;font-size:0.8rem;">(Grounded)</span>{% endif %}
+                    <a href="/snapshots/{{ ref.snapshot_id }}" style="margin-left:0.25rem;font-size:0.8rem;">{{ ref.snapshot_id[:8] }}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
     <p>None.</p>
     {% endif %}
 
@@ -174,6 +409,12 @@
             {% if event.payload.get("event_kind") == "review_outcome" %}
             <span class="lifecycle-review-outcome">{{ event.created_at }} — Review outcome: {% if event.payload.get("outcome") == "reinforced" %}Reinforced{% elif event.payload.get("outcome") == "slight_tension" %}Slight tension{% elif event.payload.get("outcome") == "strong_tension" %}Strong tension{% elif event.payload.get("outcome") == "inconclusive" %}Inconclusive{% else %}{{ event.payload.get("outcome", "") }}{% endif %}</span>
             {% if event.payload.get("note") %}<span class="lifecycle-review-note">{{ event.payload.note }}</span>{% endif %}
+            {% elif event.payload.get("event_kind") == "decision" %}
+            <span class="lifecycle-decision">{{ event.created_at }} — Decision: {{ event.payload.get("decision", {}).get("type", "decision") }}</span>
+            {% if event.payload.get("decision", {}).get("rationale") %}<span class="lifecycle-decision-rationale">{{ event.payload.decision.rationale }}</span>{% endif %}
+            {% elif event.payload.get("event_kind") == "confidence" %}
+            <span class="lifecycle-confidence">{{ event.created_at }} — Confidence set to {{ event.payload.get("confidence_level", "") }}</span>
+            {% if event.payload.get("rationale") %}<span class="lifecycle-review-note">{{ event.payload.rationale }}</span>{% endif %}
             {% else %}
             {{ event.created_at }} — {{ event.payload }}
             {% endif %}

@@ -1,5 +1,5 @@
 """
-Derivations module for Phase 2.1.
+Derivations module.
 
 This module contains pure computation functions and deterministic assembly logic
 for deriving metrics from StockSnapshot v1 data.

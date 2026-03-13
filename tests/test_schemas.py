@@ -9,6 +9,9 @@ from core.models.belief_lifecycle_event import (
     RecordedBy,
     BeliefState,
     TriggerType,
+    BeliefDecisionEvent,
+    DecisionPayload,
+    DecisionFollowUp,
 )
 from core.models.reasoning_artifact import (
     ReasoningArtifact,
@@ -54,6 +57,39 @@ def test_belief_lifecycle_event_valid():
         ),
     )
     assert event.schema_version == "v1"
+
+
+def test_belief_decision_event_valid():
+    """Decision event has correct shape and serializes for lifecycle storage."""
+    event = BeliefDecisionEvent(
+        event_id=uuid4(),
+        schema_version="v1",
+        occurred_at=datetime.now(timezone.utc),
+        recorded_by="human",
+        reasoning_id=uuid4(),
+        event_kind="decision",
+        trigger="manual",
+        decision=DecisionPayload(
+            type="reinforced",
+            rationale="Data aligns with thesis.",
+            linked_snapshot_ids=[],
+        ),
+    )
+    assert event.schema_version == "v1"
+    assert event.event_kind == "decision"
+    assert event.decision.type == "reinforced"
+    payload = event.model_dump(mode="json")
+    assert payload["event_kind"] == "decision"
+    assert "decision" in payload
+    assert payload["decision"]["type"] == "reinforced"
+
+
+def test_decision_payload_all_types():
+    """All decision types are valid."""
+    for dtype in ("reinforced", "slight_tension", "strong_tension", "revised", "abandoned",
+                  "confidence_increased", "confidence_decreased", "deferred", "other"):
+        payload = DecisionPayload(type=dtype, linked_snapshot_ids=[])
+        assert payload.type == dtype
 
 
 def test_reasoning_artifact_thesis_valid():

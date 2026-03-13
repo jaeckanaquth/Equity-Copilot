@@ -114,7 +114,7 @@
                 <td><a href="/beliefs/{{ i.belief_id }}" title="{{ i.belief_id }}">{{ i.belief_id[:8] }}</a></td>
                 <td>{{ i.created_at[:19] if i.created_at else "—" }}</td>
                 <td>{{ i.age_days }}d</td>
-                <td><button type="button" class="btn-explain" data-proposal-type="{{ proposal_type }}" data-belief-text="{{ i.belief_text|e }}" data-condition-state="{{ (i.condition_state or {})|tojson|e }}">Explain</button></td>
+                <td><button type="button" class="btn-explain" data-proposal-id="{{ i.proposal_id }}" data-proposal-type="{{ proposal_type }}" data-belief-text="{{ i.belief_text|e }}" data-condition-state="{{ (i.condition_state or {})|tojson|e }}">Explain</button></td>
             </tr>
             <tr class="explain-row" style="display:none;">
                 <td colspan="5" class="explain-output" style="padding:0.5rem;font-size:0.8rem;color:#57534e;"></td>
@@ -156,10 +156,11 @@
             out.textContent = 'Loading...';
             explainTr.style.display = 'table-row';
             try {
+                const proposalId = btn.dataset.proposalId || null;
                 const r = await fetch('/api/llm/explain-proposal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState })
+                    body: JSON.stringify({ proposal_type: proposalType, belief_text: beliefText, condition_state: conditionState, proposal_id: proposalId })
                 });
                 const d = await r.json().catch(() => ({}));
                 out.textContent = r.ok ? (d.text || '') : (d.detail || 'Error');

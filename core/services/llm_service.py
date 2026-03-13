@@ -1,5 +1,5 @@
 """
-Phase 3.3 — LLM assistive layer.
+LLM assistive layer.
 
 Assistive, optional, attributable, sandboxed.
 Never structural glue. Never auto-mutation.
