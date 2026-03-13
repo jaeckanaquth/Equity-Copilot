@@ -1,6 +1,6 @@
 # Adding Beliefs and Questions
 
-## From the app
+**Implemented.** From the app:
 
 1. Open **Weekly Review** (`/weekly-review`).
 2. Click **Add belief or question** (or go to `/create`).

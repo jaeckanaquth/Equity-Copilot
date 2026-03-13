@@ -1,6 +1,6 @@
 # Live Fire — Operating the System End-to-End
 
-This runbook walks through running Equity Copilot with **real snapshots**, **2–3 beliefs per company**, the **weekly review**, and **accept/reject proposals**. Use it to observe tension and document friction.
+This runbook walks through running Equity Copilot with **real snapshots**, **2–3 beliefs per company**, the **weekly review**, and **accept/reject proposals**. Use it to observe tension and document friction. **Status:** Final; project closed.
 
 **Prerequisite:** Ingestion + creation are working (you’ve already added a week’s review of theses/risk).
 

@@ -1,6 +1,6 @@
 # Proposals — Lifecycle and Behavior
 
-Proposals are **structural suggestions** the system generates when certain conditions hold (e.g. belief has newer snapshots, staleness). They are **manual only**: accept/reject is a user acknowledgment and does not change beliefs, snapshots, or artifacts.
+Proposals are **structural suggestions** the system generates when certain conditions hold (e.g. belief has newer snapshots, staleness). They are **manual only**: accept/reject is a user acknowledgment and does not change beliefs, snapshots, or artifacts. **Implemented.**
 
 ---
 

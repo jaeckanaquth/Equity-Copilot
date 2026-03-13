@@ -1,6 +1,6 @@
 # Architecture — Structural Design
 
-Purely technical. No philosophy. No marketing.
+Purely technical. No philosophy. No marketing. **Status:** Implemented; reflects current closed slice.
 
 ---
 

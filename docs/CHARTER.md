@@ -62,7 +62,7 @@ The project is successful if:
 
 ## 5. Evolution
 
-The system is iterative. Features are added incrementally and documented. **The philosophy and invariants should not change.** See [ROADMAP.md](ROADMAP.md) for phases.
+The system is iterative. Features are added incrementally and documented. **The philosophy and invariants should not change.** See [ROADMAP.md](ROADMAP.md) for phases. The current implementation satisfies the success criteria above; the project is closed for the documented roadmap slice.
 
 ---
 

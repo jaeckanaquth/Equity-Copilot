@@ -1,6 +1,6 @@
 # Manual Belief Confidence — Spec (B)
 
-**Philosophy:** Confidence is **human-set only**. The system does not compute or suggest confidence. You optionally record how confident you are in a belief (low / medium / high); it is stored as a lifecycle event so the artifact stays immutable and you have a history of updates.
+**Philosophy:** Confidence is **human-set only**. The system does not compute or suggest confidence. You optionally record how confident you are in a belief (low / medium / high); it is stored as a lifecycle event so the artifact stays immutable and you have a history of updates. **Implemented.**
 
 ---
 

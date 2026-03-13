@@ -98,5 +98,7 @@ All three directions (process depth, performance observability, agent sophistica
 | **C.1** | One agent or tool — define contract (inputs, outputs), implement, document guardrails (no belief creation, no decision recording, no artifact mutation) in ARCHITECTURE or INVARIANTS | LLM assistive only; extend only with explicit “what this agent must not do” |
 | **C.2** | Next agent/tool — same pattern | — |
 
+**Current slice status:** A.1–A.3, B.1, C.1–C.2 are implemented. Project closed for this slice.
+
 **Order:** A.1 → A.2 → A.3 → B.1 (minimal) → C.1 → C.2 …  
 After each portion: run live fire or smoke test; update MASTER “implemented” if needed.

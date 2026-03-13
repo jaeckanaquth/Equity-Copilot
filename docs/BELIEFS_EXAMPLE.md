@@ -1,6 +1,6 @@
 # Example: Adding Beliefs (Markdown Format)
 
-Use this file as a template to draft beliefs in markdown, then add them via the **UI** ([/beliefs/new](http://localhost:8000/beliefs/new)) or the **CLI** (`scripts/add_artifact.py`). For bulk add by ticker, you can follow the pattern in `scripts/seed_beliefs.py`.
+Use this file as a template to draft beliefs in markdown, then add them via the **UI** ([/beliefs/new](http://localhost:8000/beliefs/new)) or the **CLI** (`scripts/add_artifact.py`). For bulk add by ticker, you can follow the pattern in `scripts/seed_beliefs.py`. **Reference only; project closed.**
 
 ---
 

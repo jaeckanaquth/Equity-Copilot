@@ -2,6 +2,8 @@
 
 Single entry point for all project documentation. Each file has one job. No duplication.
 
+**Project status:** Complete for the current roadmap slice (Phases 1–4, 4.2, 4.3; portions A.1–A.3, B.1, C.1–C.2). Shop closed; docs are final.
+
 ---
 
 ## Purpose

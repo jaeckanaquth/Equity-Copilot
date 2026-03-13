@@ -1,6 +1,6 @@
 # Invariants — Hard Constraints
 
-The constitution. Non-negotiable.
+The constitution. Non-negotiable. **Status:** In force; project closed for current slice.
 
 ---
 

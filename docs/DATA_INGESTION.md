@@ -1,6 +1,6 @@
 # Data Ingestion
 
-## Rule
+**Implemented.** Rule:
 
 - **Produces StockSnapshot objects only.** No other artifacts.
 - **Never bypasses Phase 1 model.** All data flows through the snapshot schema.

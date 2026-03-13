@@ -2,6 +2,8 @@
 
 A **log-structured reasoning system** for equity investing.
 
+**Project status:** Phase 4 and current roadmap slice (A.1–A.3, B.1, C.1–C.2) are complete. Documentation and runbooks are final; see [docs/README.md](docs/README.md).
+
 **Goal:** Better long-term, risk-adjusted returns through improved reasoning discipline.
 
 The system does not predict markets or optimize trades. It enforces structured thinking, explicit beliefs, structured review, and explicit outcomes. Returns are a downstream consequence of disciplined reasoning. The system optimizes process, not outcomes.

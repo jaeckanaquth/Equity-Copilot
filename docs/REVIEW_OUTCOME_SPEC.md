@@ -1,6 +1,6 @@
 # Manual Review Outcome — Lifecycle Payload & UI Spec
 
-Belief health remains **human-judged**. The system does not auto-classify tension or reinforcement. This spec adds an optional **manual review outcome** recorded when you complete a belief review: a single choice (Reinforced / Slight tension / Strong tension / Inconclusive) plus optional note, stored as a lifecycle event. Implementation can follow this later without changing the philosophy.
+Belief health remains **human-judged**. The system does not auto-classify tension or reinforcement. This spec adds an optional **manual review outcome** recorded when you complete a belief review: a single choice (Reinforced / Slight tension / Strong tension / Inconclusive) plus optional note, stored as a lifecycle event. **Implemented.**
 
 ---
 

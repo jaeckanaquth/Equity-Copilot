@@ -1,5 +1,7 @@
 # Review Cadence Reminders — Spec (C)
 
+**Status:** Implemented. Cadence table, POST/DELETE API, weekly review “Due for review (cadence)”, set/clear on belief detail.
+
 **Philosophy:** Reminders are **calendar-driven**, not truth-driven. The system does not judge belief health. You set when you want to review a belief again (e.g. “in 2 weeks” or “by 2026-03-01”); the app surfaces “Due for review (cadence)” when that date is reached. No automatic interpretation of data or belief strength.
 
 ---

@@ -1,6 +1,6 @@
 # Phase 4 — Final Structural Position
 
-**Purpose:** Lock the epistemic invariants of the decision layer so they do not drift. This document is the single source of truth for what Phase 4 is and is not allowed to do.
+**Purpose:** Lock the epistemic invariants of the decision layer so they do not drift. This document is the single source of truth for what Phase 4 is and is not allowed to do. **Status:** Implemented; final.
 
 ---
 

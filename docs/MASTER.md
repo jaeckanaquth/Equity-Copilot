@@ -1,6 +1,6 @@
 # Equity Copilot — Master Reference
 
-Single compressed reference for the system. Use this to start Phase 4; deep-dive specs remain in `docs/` for implementation detail.
+Single compressed reference for the system. **Status: implemented and closed for current slice.** Use this as the runbook for operation; deep-dive specs remain in `docs/` for implementation detail.
 
 ---
 

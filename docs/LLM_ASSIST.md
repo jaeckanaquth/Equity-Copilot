@@ -1,6 +1,6 @@
 # LLM Assist — What It Does and What It Doesn’t
 
-The LLM layer is **assistive only**. The system is structurally complete without it. LLM output is a **suggestion artifact**, not a system artifact; nothing is saved until the user explicitly copies or applies it.
+The LLM layer is **assistive only**. The system is structurally complete without it. LLM output is a **suggestion artifact**, not a system artifact; nothing is saved until the user explicitly copies or applies it. **Implemented.**
 
 ---
 

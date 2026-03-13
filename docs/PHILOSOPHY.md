@@ -1,6 +1,6 @@
 # Philosophy — Intent & Guardrails
 
-Why the system exists. What drift it prevents.
+Why the system exists. What drift it prevents. **Status:** Final; project closed for current slice.
 
 ---
 

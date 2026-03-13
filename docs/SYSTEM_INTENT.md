@@ -1,6 +1,6 @@
 # System Intent — Reflective Design Memo
 
-**Reflective design memo, not canonical doctrine.** The 5 Ws, 5 Hs, phase map, and “hard question” below capture system intent and design narrative. Canonical positions live in [PHILOSOPHY.md](PHILOSOPHY.md), [CHARTER.md](CHARTER.md), [INVARIANTS.md](INVARIANTS.md), and [ROADMAP.md](ROADMAP.md). Use this doc for narrative and reflection.
+**Reflective design memo, not canonical doctrine.** The 5 Ws, 5 Hs, phase map, and “hard question” below capture system intent and design narrative. Canonical positions live in [PHILOSOPHY.md](PHILOSOPHY.md), [CHARTER.md](CHARTER.md), [INVARIANTS.md](INVARIANTS.md), and [ROADMAP.md](ROADMAP.md). Use this doc for narrative and reflection. **Status:** Final; project closed for current slice.
 
 ---
 

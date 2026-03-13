@@ -1,6 +1,6 @@
 # StockSnapshot v1 — Specification
 
-## 1. Purpose
+**Implemented.** Purpose:
 
 A **StockSnapshot v1** is an immutable, time-stamped factual record describing the observable state of **one publicly listed company**, captured at a specific point in time.
 
