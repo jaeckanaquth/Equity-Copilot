@@ -1,11 +1,12 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, datetime
 
-from sqlalchemy import Column, String, Date, Integer, DateTime
+from sqlalchemy import Column, Date, DateTime, Integer, String
+
 from db.session import Base
 
 
 def _utc_now():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class BeliefReviewCadenceORM(Base):

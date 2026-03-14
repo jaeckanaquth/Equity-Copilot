@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Optional, Literal
+from typing import Literal
 from uuid import UUID
-
-from pydantic import BaseModel, Field, ConfigDict, field_validator
 from zoneinfo import ZoneInfo
 
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 IST = ZoneInfo("Asia/Kolkata")
 
@@ -21,7 +20,7 @@ class SnapshotMetadata(BaseModel):
     snapshot_id: UUID
     as_of: datetime
     schema_version: Literal["v1"] = Field(default="v1")
-    data_sources: Optional[List[str]]
+    data_sources: list[str] | None
 
     @field_validator("as_of")
     @classmethod
@@ -37,12 +36,12 @@ class SnapshotMetadata(BaseModel):
 class CompanyIdentity(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    ticker: Optional[str]
-    exchange: Optional[str]
-    company_name: Optional[str]
-    sector: Optional[str]
-    industry: Optional[str]
-    country: Optional[str]
+    ticker: str | None
+    exchange: str | None
+    company_name: str | None
+    sector: str | None
+    industry: str | None
+    country: str | None
 
 
 # -----------------------------
@@ -51,12 +50,12 @@ class CompanyIdentity(BaseModel):
 class MarketState(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    current_price: Optional[Decimal]
-    currency: Optional[str]
-    market_cap: Optional[Decimal]
-    shares_outstanding: Optional[Decimal]
-    fifty_two_week_high: Optional[Decimal]
-    fifty_two_week_low: Optional[Decimal]
+    current_price: Decimal | None
+    currency: str | None
+    market_cap: Decimal | None
+    shares_outstanding: Decimal | None
+    fifty_two_week_high: Decimal | None
+    fifty_two_week_low: Decimal | None
 
 
 # -----------------------------
@@ -66,13 +65,13 @@ class FinancialSummary(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     # Annual (last completed FY)
-    revenue_fy: Optional[Decimal]
-    net_profit_fy: Optional[Decimal]
-    operating_margin_fy: Optional[Decimal]
+    revenue_fy: Decimal | None
+    net_profit_fy: Decimal | None
+    operating_margin_fy: Decimal | None
 
     # Recent quarters (oldest → newest)
-    quarterly_revenue: Optional[List[Optional[Decimal]]]
-    quarterly_net_profit: Optional[List[Optional[Decimal]]]
+    quarterly_revenue: list[Decimal | None] | None
+    quarterly_net_profit: list[Decimal | None] | None
 
 
 # -----------------------------
@@ -81,10 +80,10 @@ class FinancialSummary(BaseModel):
 class BalanceSheetSignals(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    total_assets: Optional[Decimal]
-    total_liabilities: Optional[Decimal]
-    total_debt: Optional[Decimal]
-    cash_and_equivalents: Optional[Decimal]
+    total_assets: Decimal | None
+    total_liabilities: Decimal | None
+    total_debt: Decimal | None
+    cash_and_equivalents: Decimal | None
 
 
 # -----------------------------
@@ -93,7 +92,7 @@ class BalanceSheetSignals(BaseModel):
 class UserNotes(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    user_notes: Optional[str]
+    user_notes: str | None
 
 
 # -----------------------------
@@ -111,4 +110,4 @@ class StockSnapshot(BaseModel):
     market_state: MarketState
     financials: FinancialSummary
     balance_sheet: BalanceSheetSignals
-    user_notes: Optional[UserNotes]
+    user_notes: UserNotes | None

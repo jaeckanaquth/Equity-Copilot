@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Literal, Optional
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
 
 class MetricType(str, Enum):
@@ -24,11 +24,11 @@ class DerivedMetric(BaseModel):
     metric_name: str
     metric_type: MetricType
 
-    value: Optional[float]
-    unit: Optional[str]
+    value: float | None
+    unit: str | None
 
     formula: str
-    inputs: List[MetricInputRef]
+    inputs: list[MetricInputRef]
 
     computed_at: datetime
 
@@ -45,8 +45,8 @@ class DerivedMetricSet(BaseModel):
     created_at: datetime
     computation_engine: str
 
-    input_snapshots: List[SnapshotRef]
-    metrics: List[DerivedMetric]
+    input_snapshots: list[SnapshotRef]
+    metrics: list[DerivedMetric]
 
     @field_validator("input_snapshots")
     @classmethod

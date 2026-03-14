@@ -1,22 +1,21 @@
 """LLM assistive endpoints. Optional, attributable, no mutation."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from db.session import SessionLocal
-from core.services.llm_service import (
-    LLMNotConfigured,
-    LLMService,
-    OLLAMA_MODEL,
-    TEMPERATURE,
-)
+from api.deps import get_db
+from core.models.reasoning_artifact import ArtifactType
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.proposal_repository import ProposalRepository
-from core.models.reasoning_artifact import ArtifactType
 from core.services.belief_analysis_service import BeliefAnalysisService
+from core.services.llm_service import (
+    OLLAMA_MODEL,
+    TEMPERATURE,
+    LLMService,
+)
 
 router = APIRouter()
 
@@ -25,16 +24,8 @@ def _metadata(model: str):
     return {
         "model": model,
         "temperature": TEMPERATURE,
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_llm() -> LLMService:

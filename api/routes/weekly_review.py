@@ -1,30 +1,23 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
-from datetime import date
 
-from db.session import SessionLocal
+from api.deps import get_db
+from core.models.reasoning_artifact import ArtifactType, ReasoningArtifact
 from core.repositories.artifact_repository import ArtifactRepository
-from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.cadence_repository import CadenceRepository
+from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.proposal_repository import ProposalRepository
 from core.repositories.question_answer_repository import QuestionAnswerRepository
-from core.services.introspection_service import IntrospectionService
-from core.services.belief_analysis_service import BeliefAnalysisService
 from core.services.artifact_integrity_service import ArtifactIntegrityService
+from core.services.belief_analysis_service import BeliefAnalysisService
+from core.services.introspection_service import IntrospectionService
 from core.services.proposal_engine import ProposalEngine
 from core.templates import templates
-from core.models.reasoning_artifact import ReasoningArtifact, ArtifactType
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/weekly-review", response_class=HTMLResponse)

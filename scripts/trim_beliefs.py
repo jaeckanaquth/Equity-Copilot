@@ -11,18 +11,17 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 from collections import defaultdict
-from typing import Set
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from db.session import SessionLocal
 from db.models.artifact import ArtifactORM
 from db.models.lifecycle import BeliefLifecycleEventORM
+from db.session import SessionLocal
 
 
-def _tickers_from_payload(artifact_repo, payload: dict) -> Set[str]:
+def _tickers_from_payload(artifact_repo, payload: dict) -> set[str]:
     refs = (payload or {}).get("references") or {}
     sids = refs.get("snapshot_ids") or []
     tickers = set()

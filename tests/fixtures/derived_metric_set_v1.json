@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "metric_set_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "source_snapshot_id": "9a2f6e7a-3e9a-4c91-b6d2-0c3e8f6b9c41",
+    "schema_version": "v1"
+  },
+  "valuation": {
+    "pe_ratio": 32.1,
+    "ps_ratio": 5.9,
+    "pb_ratio": 8.2,
+    "enterprise_value": null,
+    "ev_to_revenue": null,
+    "ev_to_ebitda": null
+  },
+  "profitability": {
+    "net_profit_margin": 0.184,
+    "roa": null,
+    "roe": null,
+    "roce": null
+  },
+  "financial_health": {
+    "debt_to_equity": 0.0,
+    "current_ratio": null,
+    "quick_ratio": null,
+    "debt_to_assets": null,
+    "cash_to_debt": null
+  },
+  "growth": {
+    "revenue_growth_yoy": 0.052,
+    "profit_growth_yoy": null,
+    "revenue_growth_qoq": 0.031,
+    "profit_growth_qoq": null
+  }
+}

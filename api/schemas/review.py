@@ -1,27 +1,27 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class OpenQuestionResponse(BaseModel):
     question_id: str
     question_text: str
     age_days: int
-    snapshot_ids: List[str]
-    company_tickers: List[str]
+    snapshot_ids: list[str]
+    company_tickers: list[str]
 
 
 class StaleBeliefResponse(BaseModel):
     belief_id: str
     belief_text: str
     age_days_since_review: int
-    newer_snapshot_ids: List[str]
-    company_tickers: List[str]
+    newer_snapshot_ids: list[str]
+    company_tickers: list[str]
 
 
 class CoverageResponse(BaseModel):
     belief_id: str
-    snapshot_ids: List[str]
+    snapshot_ids: list[str]
     coverage_gap: bool
 
 
@@ -32,11 +32,11 @@ class BeliefOrphanItem(BaseModel):
 
 class SnapshotOrphanItem(BaseModel):
     snapshot_id: str
-    ticker: Optional[str]
+    ticker: str | None
     as_of: datetime
     age_days: int
 
 
 class OrphanResponse(BaseModel):
-    beliefs_without_snapshots: List[BeliefOrphanItem]
-    snapshots_without_dependents: List[SnapshotOrphanItem]
+    beliefs_without_snapshots: list[BeliefOrphanItem]
+    snapshots_without_dependents: list[SnapshotOrphanItem]

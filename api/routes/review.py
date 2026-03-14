@@ -1,41 +1,28 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from db.session import SessionLocal
+from api.deps import get_db
+from api.schemas.review import (
+    CoverageResponse,
+    OpenQuestionResponse,
+    OrphanResponse,
+    StaleBeliefResponse,
+)
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.question_answer_repository import QuestionAnswerRepository
-from core.services.introspection_service import IntrospectionService
-from core.services.belief_analysis_service import BeliefAnalysisService
 from core.services.artifact_integrity_service import ArtifactIntegrityService
-from api.schemas.review import (
-    OpenQuestionResponse,
-    StaleBeliefResponse,
-    CoverageResponse,
-    OrphanResponse,
-)
-from typing import Dict, List
-
+from core.services.belief_analysis_service import BeliefAnalysisService
+from core.services.introspection_service import IntrospectionService
 
 router = APIRouter()
-
-
-# -------------------------
-# DB Dependency
-# -------------------------
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 # -------------------------
 # Weekly Review Endpoints
 # -------------------------
 
-@router.get("/questions", response_model=Dict[str, List[OpenQuestionResponse]])
+@router.get("/questions", response_model=dict[str, list[OpenQuestionResponse]])
 def open_questions(db: Session = Depends(get_db)):
     artifact_repo = ArtifactRepository(db)
     answer_repo = QuestionAnswerRepository(db)
@@ -43,7 +30,7 @@ def open_questions(db: Session = Depends(get_db)):
     return service.get_open_questions()
 
 
-@router.get("/beliefs/stale", response_model=Dict[str, List[StaleBeliefResponse]])
+@router.get("/beliefs/stale", response_model=dict[str, list[StaleBeliefResponse]])
 def stale_beliefs(db: Session = Depends(get_db)):
     artifact_repo = ArtifactRepository(db)
     lifecycle_repo = BeliefLifecycleRepository(db)

@@ -4,15 +4,14 @@ Decision Analytics Layer.
 Descriptive analytics over the decision log: durability, tension density, trajectory patterns.
 No writes. No stored metrics. Pure computation. Never evaluative or predictive.
 """
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from core.models.reasoning_artifact import ArtifactType
-
 from core.services.decision_projection_service import DecisionProjectionService
 
 
-def _parse_occurred_at(payload: dict, fallback_created_at: Optional[datetime]) -> Optional[datetime]:
+def _parse_occurred_at(payload: dict, fallback_created_at: datetime | None) -> datetime | None:
     occ = payload.get("occurred_at")
     if isinstance(occ, datetime):
         return occ
@@ -26,11 +25,11 @@ def _parse_occurred_at(payload: dict, fallback_created_at: Optional[datetime]) -
 
 def _ensure_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
+        return dt.replace(tzinfo=UTC)
     return dt
 
 
-def _classify_trajectory(sequence: List[str]) -> str:
+def _classify_trajectory(sequence: list[str]) -> str:
     """
     Purely descriptive classification. Never stored. Not evaluative.
     Returns: stable | gradual_degradation | sudden_collapse | oscillatory | other
@@ -72,11 +71,11 @@ class DecisionAnalyticsService:
         self.lifecycle_repo = lifecycle_repo
         self._projection = DecisionProjectionService(artifact_repo, lifecycle_repo)
 
-    def get_decision_summary(self, since: Optional[datetime] = None) -> Dict[str, int]:
+    def get_decision_summary(self, since: datetime | None = None) -> dict[str, int]:
         """Counts of decision events by type (since= optional). Delegates to projection."""
         return self._projection.get_decision_summary(since=since)
 
-    def get_belief_durability(self) -> Dict[str, Any]:
+    def get_belief_durability(self) -> dict[str, Any]:
         """
         Durability = time from belief creation to first non-reinforced decision.
         Returns median_days, mean_days, distribution buckets, and per-belief list.
@@ -88,8 +87,8 @@ class DecisionAnalyticsService:
             if a.artifact_type in {ArtifactType.thesis, ArtifactType.risk}
         ]
 
-        durabilities: List[Optional[int]] = []
-        per_belief: List[Dict[str, Any]] = []
+        durabilities: list[int | None] = []
+        per_belief: list[dict[str, Any]] = []
 
         for artifact in beliefs:
             belief_id = str(artifact.reasoning_id)
@@ -99,7 +98,7 @@ class DecisionAnalyticsService:
                 continue
 
             timeline = self._projection.get_decision_timeline(belief_id)
-            first_non_reinforced_at: Optional[datetime] = None
+            first_non_reinforced_at: datetime | None = None
             for entry in timeline:
                 if entry.get("type") != "reinforced":
                     occ = entry.get("occurred_at")
@@ -153,7 +152,7 @@ class DecisionAnalyticsService:
             "per_belief": per_belief,
         }
 
-    def get_tension_density(self) -> Dict[str, Any]:
+    def get_tension_density(self) -> dict[str, Any]:
         """
         % of beliefs whose current decision is slight_tension or strong_tension.
         Systemic stress indicator. Descriptive only.
@@ -196,7 +195,7 @@ class DecisionAnalyticsService:
             "tension_density_pct": round(pct, 2),
         }
 
-    def get_trajectory_patterns(self) -> Dict[str, Any]:
+    def get_trajectory_patterns(self) -> dict[str, Any]:
         """
         Per-belief decision sequence classified as stable | gradual_degradation | sudden_collapse | oscillatory | other.
         Labels are derived only — never persisted. Descriptive, not evaluative.
@@ -207,8 +206,8 @@ class DecisionAnalyticsService:
             if a.artifact_type in {ArtifactType.thesis, ArtifactType.risk}
         ]
 
-        trajectories: List[Dict[str, Any]] = []
-        counts: Dict[str, int] = {}
+        trajectories: list[dict[str, Any]] = []
+        counts: dict[str, int] = {}
 
         for artifact in beliefs:
             belief_id = str(artifact.reasoning_id)

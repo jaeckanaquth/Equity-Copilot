@@ -1,19 +1,13 @@
 import json
-import sys
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID
-from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
-
-# Add project root to Python path for imports
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from pydantic import ValidationError
 
 from core.models.stock_snapshot import StockSnapshot
-from pydantic import ValidationError
 
 IST = ZoneInfo("Asia/Kolkata")
 

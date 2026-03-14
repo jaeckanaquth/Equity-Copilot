@@ -1,20 +1,18 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict
 from uuid import UUID
 
 from core.models.analysis_view import (
+    AnalysisConfidence,
+    AnalysisFrame,
+    AnalysisOutputField,
+    AnalysisOutputs,
     AnalysisView,
     AnalysisViewInput,
-    AnalysisFrame,
-    AnalysisOutputs,
-    AnalysisOutputField,
-    AnalysisConfidence,
     CreatedBy,
 )
 from core.models.derived_metrics import DerivedMetricSet
-
 
 REQUIRED_METRICS = {
     "current_multiple": "current_valuation_multiple",
@@ -43,7 +41,7 @@ def build_valuation_multiple_view(
     # -------------------------
     # Collect metrics by name
     # -------------------------
-    metric_index: Dict[str, float | None] = {}
+    metric_index: dict[str, float | None] = {}
 
     for dms in derived_metric_sets:
         for metric in dms.metrics:

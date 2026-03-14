@@ -2,14 +2,15 @@
 Observed returns/risk for performance observation (read-only layer).
 Does not mutate beliefs or decisions. Append-only ingestion.
 """
-from datetime import date, datetime, timezone
+from datetime import UTC, datetime
 
-from sqlalchemy import Column, String, Date, Integer, Float, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
+
 from db.session import Base
 
 
 def _utc_now():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class ObservedReturnPeriodORM(Base):

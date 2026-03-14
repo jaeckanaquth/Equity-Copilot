@@ -8,7 +8,6 @@ Backend: Ollama (free, local). Run `ollama serve` and use a model from `ollama l
 Fits 8GB VRAM. Strong instruction following. Good JSON compliance.
 """
 import os
-from typing import Optional
 
 import requests
 
@@ -37,7 +36,7 @@ class LLMService:
     def _check_ollama_available(self) -> bool:
         try:
             r = requests.get(f"{self._base_url}/api/tags", timeout=5)
-            return r.status_code == 200
+            return bool(r.status_code == 200)
         except Exception:
             return False
 
@@ -117,7 +116,7 @@ Output only the summary."""
         self,
         proposal_type: str,
         belief_text: str,
-        condition_state: Optional[dict] = None,
+        condition_state: dict | None = None,
     ) -> str:
         """Explain why a structural proposal was triggered."""
         cond = condition_state or {}
@@ -238,4 +237,4 @@ New snapshot metrics (same companies, since last review):
 
             return response
         except Exception as e:
-            return f'{{"delta_summary": "[LLM error: ' + str(e).replace('"', "'") + ']", "potential_tensions": [], "questions_raised": []}}'
+            return '{"delta_summary": "[LLM error: ' + str(e).replace('"', "'") + ']", "potential_tensions": [], "questions_raised": []}}'

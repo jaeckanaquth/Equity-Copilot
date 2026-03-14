@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Dict, List
+from datetime import UTC, datetime
+
 from core.models.reasoning_artifact import ArtifactType
 
 
@@ -8,7 +8,7 @@ class ArtifactIntegrityService:
     def __init__(self, artifact_repo):
         self.artifact_repo = artifact_repo
 
-    def get_orphans(self) -> Dict:
+    def get_orphans(self) -> dict:
         reasoning_artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         snapshots = self.artifact_repo.list_by_type("StockSnapshot")
 
@@ -31,7 +31,7 @@ class ArtifactIntegrityService:
                     )
 
         snapshots_without_dependents = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for snapshot in snapshots:
             sid = str(snapshot.metadata.snapshot_id)
             if sid not in referenced_snapshot_ids:

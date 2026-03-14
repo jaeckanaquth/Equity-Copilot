@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel
-from typing_extensions import Literal
 
 from core.models.reasoning_artifact import ConfidenceLevel
-
 
 # -----------------------------
 # Enums
@@ -47,10 +45,10 @@ class LifecycleTrigger(BaseModel):
 class LifecycleJustification(BaseModel):
     summary: str
 
-    snapshot_ids: List[UUID] = []
-    derived_metric_set_ids: List[UUID] = []
-    analysis_view_ids: List[UUID] = []
-    reasoning_artifact_ids: List[UUID] = []
+    snapshot_ids: list[UUID] = []
+    derived_metric_set_ids: list[UUID] = []
+    analysis_view_ids: list[UUID] = []
+    reasoning_artifact_ids: list[UUID] = []
 
 
 # -----------------------------
@@ -93,7 +91,7 @@ class BeliefReviewOutcomeEvent(BaseModel):
     event_kind: Literal["review_outcome"] = "review_outcome"
     trigger: Literal["manual_review"] = "manual_review"
     outcome: ReviewOutcome
-    note: Optional[str] = None
+    note: str | None = None
 
 
 class GroundingUpdatedEvent(BaseModel):
@@ -105,7 +103,7 @@ class GroundingUpdatedEvent(BaseModel):
     reasoning_id: UUID
     event_kind: Literal["grounding_updated"] = "grounding_updated"
     trigger: Literal["review_prompt_accepted"] = "review_prompt_accepted"
-    attached_snapshot_ids: List[str] = []
+    attached_snapshot_ids: list[str] = []
 
 
 # -----------------------------
@@ -128,18 +126,18 @@ DecisionTrigger = Literal["manual", "record_outcome", "cadence_mark", "proposal_
 
 
 class DecisionFollowUp(BaseModel):
-    action: Optional[Literal["none", "set_cadence", "archive", "reseed_beliefs", "notify"]] = "none"
-    params: Optional[dict] = None
+    action: Literal["none", "set_cadence", "archive", "reseed_beliefs", "notify"] | None = "none"
+    params: dict | None = None
 
 
 class DecisionPayload(BaseModel):
     type: DecisionType
-    sub_type: Optional[str] = None
-    rationale: Optional[str] = None
-    linked_snapshot_ids: List[UUID] = []
-    related_lifecycle_event_ids: List[UUID] = []
-    follow_up: Optional[DecisionFollowUp] = None
-    metadata: Optional[dict] = None
+    sub_type: str | None = None
+    rationale: str | None = None
+    linked_snapshot_ids: list[UUID] = []
+    related_lifecycle_event_ids: list[UUID] = []
+    follow_up: DecisionFollowUp | None = None
+    metadata: dict | None = None
 
 
 class BeliefDecisionEvent(BaseModel):
@@ -169,4 +167,4 @@ class BeliefConfidenceEvent(BaseModel):
     event_kind: Literal["confidence"] = "confidence"
     trigger: Literal["manual"] = "manual"
     confidence_level: ConfidenceLevel
-    rationale: Optional[str] = None
+    rationale: str | None = None

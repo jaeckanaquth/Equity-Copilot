@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
-from typing_extensions import Literal
-
+from pydantic import BaseModel
 
 # -----------------------------
 # Enums
@@ -53,9 +51,9 @@ class ReasoningSubject(BaseModel):
 
 
 class ReasoningReferences(BaseModel):
-    snapshot_ids: List[UUID]
-    derived_metric_set_ids: List[UUID]
-    analysis_view_ids: List[UUID]
+    snapshot_ids: list[UUID]
+    derived_metric_set_ids: list[UUID]
+    analysis_view_ids: list[UUID]
 
 
 class ReasoningClaim(BaseModel):
@@ -64,9 +62,9 @@ class ReasoningClaim(BaseModel):
 
 
 class ReasoningDetail(BaseModel):
-    rationale: List[str]
-    assumptions: List[str]
-    counterpoints: List[str]
+    rationale: list[str]
+    assumptions: list[str]
+    counterpoints: list[str]
 
 
 class ReasoningConfidence(BaseModel):
@@ -75,8 +73,8 @@ class ReasoningConfidence(BaseModel):
 
 
 class ReasoningReview(BaseModel):
-    review_by: Optional[datetime]
-    review_trigger: Optional[str]
+    review_by: datetime | None
+    review_trigger: str | None
 
 
 # -----------------------------

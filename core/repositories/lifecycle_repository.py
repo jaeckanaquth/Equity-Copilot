@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from db.models.lifecycle import BeliefLifecycleEventORM
 

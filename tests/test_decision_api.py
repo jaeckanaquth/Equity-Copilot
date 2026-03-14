@@ -5,12 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from main import app
-from api.routes.artifact_detail import get_db
-from api.routes.reports import get_db as reports_get_db
-from db.session import Base
+from api.deps import get_db
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
+from db.session import Base
+from main import app
 from tests.fixtures.artifact_factory import reasoning_artifact_factory
 
 
@@ -39,7 +38,6 @@ def client():
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[reports_get_db] = override_get_db
     try:
         yield TestClient(app), belief_id, TestingSessionLocal
     finally:

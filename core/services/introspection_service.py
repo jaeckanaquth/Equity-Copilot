@@ -1,19 +1,19 @@
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Set
+from datetime import UTC, datetime
+
 from core.models.reasoning_artifact import ArtifactType
 
 
 class IntrospectionService:
 
-    def __init__(self, artifact_repo, answered_question_ids: Optional[Set[str]] = None):
+    def __init__(self, artifact_repo, answered_question_ids: set[str] | None = None):
         self.artifact_repo = artifact_repo
         self.answered_question_ids = answered_question_ids or set()
 
-    def get_open_questions(self) -> Dict[str, List]:
+    def get_open_questions(self) -> dict[str, list]:
         """Questions that have no recorded answer (open = unanswered)."""
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         flat_results = []
 

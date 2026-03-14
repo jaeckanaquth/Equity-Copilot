@@ -11,17 +11,15 @@ Critical rule: Accept/Reject are acknowledgments only. They do NOT:
   - Modify any artifact
 """
 from collections import defaultdict
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-from core.services.belief_analysis_service import BeliefAnalysisService
 from core.services.artifact_integrity_service import ArtifactIntegrityService
-
+from core.services.belief_analysis_service import BeliefAnalysisService
 
 TTL_DAYS = 30
 
@@ -108,19 +106,19 @@ class ProposalEngine:
                 },
             })
 
-    def get_history_for_display(self) -> Dict[str, Dict[str, List[dict]]]:
+    def get_history_for_display(self) -> dict[str, dict[str, list[dict]]]:
         """
         Proposal history grouped by (proposal_type, status). Instance-level. Transparency > compression.
         Includes condition_state for audit. Sorted newest-first within each bucket.
         """
         rows = self.proposal_repo.list_all()
-        now = datetime.now(timezone.utc)
-        grouped: Dict[str, Dict[str, List[dict]]] = defaultdict(lambda: defaultdict(list))
+        now = datetime.now(UTC)
+        grouped: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
 
         for row in rows:
             created = row.created_at
             if created and created.tzinfo is None:
-                created = created.replace(tzinfo=timezone.utc)
+                created = created.replace(tzinfo=UTC)
             age_days = (now - created).days if created else 0
             item = {
                 "proposal_id": row.proposal_id,
@@ -143,19 +141,19 @@ class ProposalEngine:
 
         return dict(grouped)
 
-    def list_for_display(self) -> Dict[str, Dict[str, List[dict]]]:
+    def list_for_display(self) -> dict[str, dict[str, list[dict]]]:
         """
         Return proposals clustered by (proposal_type, belief_text) for display.
         Grouping key = exact string equality. No normalization.
         """
         active = self.proposal_repo.list_active()
-        now = datetime.now(timezone.utc)
-        grouped: Dict[str, Dict[str, List[dict]]] = defaultdict(lambda: defaultdict(list))
+        now = datetime.now(UTC)
+        grouped: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
 
         for row in active:
             created_at = row.created_at
             if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=timezone.utc)
+                created_at = created_at.replace(tzinfo=UTC)
             age_days = (now - created_at).days
             belief_text = row.payload.get("belief_text", "")
             instance = {

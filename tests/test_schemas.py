@@ -1,48 +1,51 @@
 """Schema validation: lifecycle event, reasoning artifact, analysis view."""
+from datetime import UTC, datetime
 from uuid import uuid4
-from datetime import datetime, timezone
 
-from core.models.belief_lifecycle_event import (
-    BeliefLifecycleEvent,
-    LifecycleTrigger,
-    LifecycleJustification,
-    RecordedBy,
-    BeliefState,
-    TriggerType,
-    BeliefDecisionEvent,
-    DecisionPayload,
-    DecisionFollowUp,
-)
-from core.models.reasoning_artifact import (
-    ReasoningArtifact,
-    ReasoningSubject,
-    ReasoningReferences,
-    ReasoningClaim,
-    ReasoningDetail,
-    ReasoningConfidence,
-    ReasoningReview,
-    CreatedBy,
-    ArtifactType,
-    Stance,
-    ConfidenceLevel,
-    SubjectEntityType,
-)
 from core.models.analysis_view import (
+    AnalysisConfidence,
+    AnalysisFrame,
+    AnalysisOutputField,
+    AnalysisOutputs,
     AnalysisView,
     AnalysisViewInput,
-    AnalysisFrame,
-    AnalysisOutputs,
-    AnalysisOutputField,
-    AnalysisConfidence,
-    CreatedBy as ViewCreatedBy,
+)
+from core.models.analysis_view import (
     ConfidenceLevel as ViewConfidenceLevel,
+)
+from core.models.analysis_view import (
+    CreatedBy as ViewCreatedBy,
+)
+from core.models.belief_lifecycle_event import (
+    BeliefDecisionEvent,
+    BeliefLifecycleEvent,
+    BeliefState,
+    DecisionPayload,
+    LifecycleJustification,
+    LifecycleTrigger,
+    RecordedBy,
+    TriggerType,
+)
+from core.models.reasoning_artifact import (
+    ArtifactType,
+    ConfidenceLevel,
+    CreatedBy,
+    ReasoningArtifact,
+    ReasoningClaim,
+    ReasoningConfidence,
+    ReasoningDetail,
+    ReasoningReferences,
+    ReasoningReview,
+    ReasoningSubject,
+    Stance,
+    SubjectEntityType,
 )
 
 
 def test_belief_lifecycle_event_valid():
     event = BeliefLifecycleEvent(
         event_id=uuid4(),
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         recorded_by=RecordedBy.human,
         reasoning_id=uuid4(),
         previous_state=BeliefState.active,
@@ -64,7 +67,7 @@ def test_belief_decision_event_valid():
     event = BeliefDecisionEvent(
         event_id=uuid4(),
         schema_version="v1",
-        occurred_at=datetime.now(timezone.utc),
+        occurred_at=datetime.now(UTC),
         recorded_by="human",
         reasoning_id=uuid4(),
         event_kind="decision",
@@ -95,7 +98,7 @@ def test_decision_payload_all_types():
 def test_reasoning_artifact_thesis_valid():
     artifact = ReasoningArtifact(
         reasoning_id=uuid4(),
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=CreatedBy.human,
         artifact_type=ArtifactType.thesis,
         subject=ReasoningSubject(
@@ -131,7 +134,7 @@ def test_reasoning_artifact_thesis_valid():
 def test_analysis_view_minimal_valid():
     view = AnalysisView(
         analysis_view_id=uuid4(),
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=ViewCreatedBy.human,
         view_type="valuation_multiple",
         inputs=AnalysisViewInput(

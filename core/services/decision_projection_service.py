@@ -5,7 +5,7 @@ Read-only projections over lifecycle decision events.
 No persistence. No new tables. Computed every time.
 """
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from core.models.reasoning_artifact import ArtifactType
 
@@ -31,7 +31,7 @@ class DecisionProjectionService:
         self.artifact_repo = artifact_repo
         self.lifecycle_repo = lifecycle_repo
 
-    def get_current_decision_state(self, belief_id: str) -> Optional[Dict]:
+    def get_current_decision_state(self, belief_id: str) -> dict | None:
         """
         The most recent event_kind='decision' for this belief, by occurred_at (tie-break created_at).
         Returns None if no decision events. Not stored — derived.
@@ -50,7 +50,7 @@ class DecisionProjectionService:
             "event_id": latest.event_id,
         }
 
-    def get_decision_timeline(self, belief_id: str) -> List[Dict]:
+    def get_decision_timeline(self, belief_id: str) -> list[dict]:
         """
         Decision-only timeline for this belief, chronological (oldest first).
         Computed from lifecycle stream. No separate table.
@@ -74,7 +74,7 @@ class DecisionProjectionService:
             })
         return result
 
-    def get_beliefs_by_current_decision(self, decision_type: str) -> List[Dict]:
+    def get_beliefs_by_current_decision(self, decision_type: str) -> list[dict]:
         """
         Beliefs whose current (latest) decision has type == decision_type.
         Read-only; current state computed per belief.
@@ -95,13 +95,13 @@ class DecisionProjectionService:
                 })
         return out
 
-    def get_decision_summary(self, since: Optional[datetime] = None) -> Dict[str, int]:
+    def get_decision_summary(self, since: datetime | None = None) -> dict[str, int]:
         """
         Counts of decision events by type in the given window (since=). If since is None, all time.
         Returns e.g. {"reinforced": 12, "slight_tension": 5, ...}.
         """
         rows = self.lifecycle_repo.list_decision_events(since=since)
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         for r in rows:
             dt = (r.payload or {}).get("decision") or {}
             t = dt.get("type") or "other"

@@ -1,10 +1,12 @@
-from sqlalchemy import Column, String, DateTime, JSON
+from datetime import UTC, datetime
+
+from sqlalchemy import JSON, Column, DateTime, String
+
 from db.session import Base
-from datetime import datetime, timezone
 
 
 def _utc_now():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class BeliefLifecycleEventORM(Base):

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from core.derivations.compute import compute_revenue_fy_percent_change
@@ -22,7 +22,7 @@ def build_revenue_yoy_metric_set(
     older, newer = snapshots_sorted[-2], snapshots_sorted[-1]
 
     value = compute_revenue_fy_percent_change(older, newer)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     metric = DerivedMetric(
         metric_name="revenue_fy_yoy_percent_change",

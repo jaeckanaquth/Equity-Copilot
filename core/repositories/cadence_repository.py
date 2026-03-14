@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlalchemy.orm import Session
 
@@ -14,7 +14,7 @@ class CadenceRepository:
 
     def set(self, belief_id: str, next_review_by: date, cadence_days: int | None = None) -> None:
         row = self.get(belief_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if row:
             row.next_review_by = next_review_by
             row.cadence_days = cadence_days

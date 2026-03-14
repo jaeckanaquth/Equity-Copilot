@@ -1,30 +1,22 @@
 """Proposal lifecycle: accept / reject + audit."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import quote
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Request, HTTPException
-from fastapi.responses import RedirectResponse, Response, HTMLResponse
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 
-from db.session import SessionLocal
+from api.deps import get_db
+from core.models.belief_lifecycle_event import GroundingUpdatedEvent
+from core.models.reasoning_artifact import ArtifactType
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
 from core.repositories.proposal_repository import ProposalRepository
 from core.services.proposal_engine import ProposalEngine
-from core.models.reasoning_artifact import ArtifactType
-from core.models.belief_lifecycle_event import GroundingUpdatedEvent
 from core.templates import templates
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _is_fetch(request: Request) -> bool:
@@ -81,7 +73,7 @@ def accept_proposal(proposal_id: str, request: Request, db=Depends(get_db)):
                 current = [str(sid) for sid in belief.references.snapshot_ids]
                 merged = list(dict.fromkeys(current + newest_per_ticker))
                 artifact_repo.update_belief_snapshot_refs(belief_id, merged)
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 lifecycle_repo.append(GroundingUpdatedEvent(
                     event_id=uuid4(),
                     occurred_at=now,

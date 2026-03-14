@@ -1,40 +1,32 @@
 """Create beliefs and questions (artifacts). Read-only review is in review.py."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from uuid import uuid4, UUID
+from datetime import UTC, datetime
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
-from db.session import SessionLocal
-from core.repositories.artifact_repository import ArtifactRepository
+from api.deps import get_db
 from core.models.reasoning_artifact import (
-    ReasoningArtifact,
-    ReasoningSubject,
-    ReasoningReferences,
-    ReasoningClaim,
-    ReasoningDetail,
-    ReasoningConfidence,
-    ReasoningReview,
-    CreatedBy,
     ArtifactType,
-    Stance,
     ConfidenceLevel,
+    CreatedBy,
+    ReasoningArtifact,
+    ReasoningClaim,
+    ReasoningConfidence,
+    ReasoningDetail,
+    ReasoningReferences,
+    ReasoningReview,
+    ReasoningSubject,
+    Stance,
     SubjectEntityType,
 )
+from core.repositories.artifact_repository import ArtifactRepository
 from core.templates import templates
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _parse_snapshot_ids(raw: list[str]) -> list[UUID]:
@@ -60,7 +52,7 @@ def _save_belief(repo: ArtifactRepository, statement: str, snapshot_ids: list[UU
     artifact = ReasoningArtifact(
         reasoning_id=uuid4(),
         schema_version="v1",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=CreatedBy.human,
         artifact_type=artifact_type,
         subject=subject,
@@ -84,7 +76,7 @@ def _save_question(repo: ArtifactRepository, statement: str, snapshot_ids: list[
     artifact = ReasoningArtifact(
         reasoning_id=uuid4(),
         schema_version="v1",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=CreatedBy.human,
         artifact_type=ArtifactType.question,
         subject=subject,

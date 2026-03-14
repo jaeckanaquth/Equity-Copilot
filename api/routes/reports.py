@@ -1,15 +1,15 @@
 """Read-only report endpoints (derived decision state). Decision analytics."""
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from db.session import SessionLocal
+from api.deps import get_db
 from core.repositories.artifact_repository import ArtifactRepository
 from core.repositories.lifecycle_repository import BeliefLifecycleRepository
-from core.services.decision_projection_service import DecisionProjectionService
-from core.services.decision_analytics_service import DecisionAnalyticsService
 from core.repositories.observed_returns_repository import ObservedReturnsRepository
+from core.services.decision_analytics_service import DecisionAnalyticsService
+from core.services.decision_projection_service import DecisionProjectionService
 
 
 class PortfolioReturnPeriodBody(BaseModel):
@@ -21,14 +21,6 @@ class PortfolioReturnPeriodBody(BaseModel):
 
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/api/reports/beliefs")
@@ -159,9 +151,10 @@ def report_observed_outcomes(
     Beliefs with current decision and linked returns (when available).
     Includes portfolio return periods. Read-only; never drives mutation.
     """
-    from fastapi.responses import PlainTextResponse
     import csv
     import io
+
+    from fastapi.responses import PlainTextResponse
 
     from core.models.reasoning_artifact import ArtifactType
 

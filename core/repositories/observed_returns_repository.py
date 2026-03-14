@@ -6,7 +6,7 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from db.models.observed_returns import ObservedReturnPeriodORM, BeliefReturnObservationORM
+from db.models.observed_returns import BeliefReturnObservationORM, ObservedReturnPeriodORM
 
 
 class ObservedReturnsRepository:

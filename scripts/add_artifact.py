@@ -9,28 +9,28 @@ Usage:
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from db.session import SessionLocal
-from core.repositories.artifact_repository import ArtifactRepository
 from core.models.reasoning_artifact import (
-    ReasoningArtifact,
-    ReasoningSubject,
-    ReasoningReferences,
-    ReasoningClaim,
-    ReasoningDetail,
-    ReasoningConfidence,
-    ReasoningReview,
-    CreatedBy,
     ArtifactType,
-    Stance,
     ConfidenceLevel,
+    CreatedBy,
+    ReasoningArtifact,
+    ReasoningClaim,
+    ReasoningConfidence,
+    ReasoningDetail,
+    ReasoningReferences,
+    ReasoningReview,
+    ReasoningSubject,
+    Stance,
     SubjectEntityType,
 )
+from core.repositories.artifact_repository import ArtifactRepository
+from db.session import SessionLocal
 
 
 def list_snapshots():
@@ -74,7 +74,7 @@ def add_belief(statement: str, snapshot_ids: list[UUID], risk: bool):
     artifact = ReasoningArtifact(
         reasoning_id=uuid4(),
         schema_version="v1",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=CreatedBy.human,
         artifact_type=artifact_type,
         subject=subject,
@@ -104,7 +104,7 @@ def add_question(statement: str, snapshot_ids: list[UUID]):
     artifact = ReasoningArtifact(
         reasoning_id=uuid4(),
         schema_version="v1",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by=CreatedBy.human,
         artifact_type=ArtifactType.question,
         subject=subject,

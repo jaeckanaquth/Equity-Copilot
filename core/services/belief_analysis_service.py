@@ -1,15 +1,14 @@
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Dict, List
-from core.models.reasoning_artifact import ArtifactType
+from datetime import UTC, datetime
+
+from core.models.reasoning_artifact import ArtifactType, ReasoningArtifact
 from core.models.stock_snapshot import StockSnapshot
-from core.models.reasoning_artifact import ReasoningArtifact
 
 
 def _ensure_utc(dt: datetime) -> datetime:
     """Normalize datetime for comparison (ORM/store may return naive)."""
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
+        return dt.replace(tzinfo=UTC)
     return dt
 
 
@@ -22,7 +21,7 @@ class BeliefAnalysisService:
     # ---------------------------
     # Q3 — Beliefs Needing Review
     # ---------------------------
-    def get_beliefs_needing_review(self) -> Dict[str, List]:
+    def get_beliefs_needing_review(self) -> dict[str, list]:
         """
         Staleness is data-driven only: a belief needs review when there exists
         a snapshot S for one of the belief's tickers such that
@@ -32,7 +31,7 @@ class BeliefAnalysisService:
         """
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         snapshots = self.artifact_repo.list_by_type("StockSnapshot")
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         results = []
 
@@ -89,7 +88,7 @@ class BeliefAnalysisService:
     # ---------------------------
     # All beliefs (for visibility)
     # ---------------------------
-    def get_all_beliefs_grouped(self) -> Dict[str, List]:
+    def get_all_beliefs_grouped(self) -> dict[str, list]:
         """Return all theses and risks grouped by company ticker (for display)."""
         artifacts = self.artifact_repo.list_by_type("ReasoningArtifact")
         results = []
@@ -119,7 +118,7 @@ class BeliefAnalysisService:
     # ---------------------------
     # Q1 — Snapshot Coverage
     # ---------------------------
-    def get_snapshot_coverage(self, belief_id: str) -> Dict:
+    def get_snapshot_coverage(self, belief_id: str) -> dict:
         belief: ReasoningArtifact | None = self.artifact_repo.get(belief_id)
         if not belief:
             raise ValueError(f"Belief not found: {belief_id}")

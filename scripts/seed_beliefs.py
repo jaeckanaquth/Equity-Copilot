@@ -12,8 +12,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from db.session import SessionLocal
 from core.repositories.artifact_repository import ArtifactRepository
+from db.session import SessionLocal
 from scripts.add_artifact import add_belief
 
 # (statement, risk, list of tickers). Target: 2–3 per company, 1–2 comparative, ~7–8 total.

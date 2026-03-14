@@ -1,10 +1,10 @@
 """Proposal engine idempotency and transition logic."""
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from db.models.artifact import ArtifactORM
 from core.repositories.proposal_repository import ProposalRepository
 from core.services.proposal_engine import ProposalEngine
+from db.models.artifact import ArtifactORM
 from tests.fixtures.artifact_factory import reasoning_artifact_factory
 from tests.fixtures.snapshot_factory import make_snapshot
 
@@ -13,17 +13,17 @@ def test_proposal_evaluate_idempotent(artifact_repo, lifecycle_repo, db_session)
     """Refresh 10 times — proposal count stays constant."""
     old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
-        created_at=datetime.now(timezone.utc) - timedelta(days=30),
+        created_at=datetime.now(UTC) - timedelta(days=30),
         snapshot_ids=[old_snapshot_id],
         statement="Stale belief for proposal test",
     )
     old_snapshot = make_snapshot(
         snapshot_id=old_snapshot_id,
-        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     new_snapshot = make_snapshot(
         snapshot_id=uuid4(),
-        as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
         snapshot_ids=[],
@@ -51,17 +51,17 @@ def test_accept_reject_prevents_recreation(artifact_repo, lifecycle_repo, db_ses
     """Accept/reject resolves proposal; evaluate does not recreate it."""
     old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
-        created_at=datetime.now(timezone.utc) - timedelta(days=30),
+        created_at=datetime.now(UTC) - timedelta(days=30),
         snapshot_ids=[old_snapshot_id],
         statement="Stale belief",
     )
     old_snapshot = make_snapshot(
         snapshot_id=old_snapshot_id,
-        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     new_snapshot = make_snapshot(
         snapshot_id=uuid4(),
-        as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
         snapshot_ids=[],
@@ -103,7 +103,7 @@ def test_condition_resolution_expires_accepted_then_regenerates(
     # Snapshot as_of in the past so belief does NOT get review_prompt (no "newer" snapshots)
     snapshot = make_snapshot(
         snapshot_id=snapshot_id,
-        as_of=(datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief = reasoning_artifact_factory(
         snapshot_ids=[],
@@ -166,17 +166,17 @@ def test_invariant_at_most_one_non_expired_per_belief_type(
     """Invariant: at most 1 non-expired proposal per (belief_id, proposal_type)."""
     old_snapshot_id = uuid4()
     belief_stale = reasoning_artifact_factory(
-        created_at=datetime.now(timezone.utc) - timedelta(days=30),
+        created_at=datetime.now(UTC) - timedelta(days=30),
         snapshot_ids=[old_snapshot_id],
         statement="Stale belief",
     )
     old_snapshot = make_snapshot(
         snapshot_id=old_snapshot_id,
-        as_of=(datetime.now(timezone.utc) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) - timedelta(days=35)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     new_snapshot = make_snapshot(
         snapshot_id=uuid4(),
-        as_of=(datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+        as_of=(datetime.now(UTC) + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
     )
     belief_ungrounded = reasoning_artifact_factory(
         snapshot_ids=[],

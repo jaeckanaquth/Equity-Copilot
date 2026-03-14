@@ -1,9 +1,10 @@
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from db.models.artifact import ArtifactORM
-from core.models.stock_snapshot import StockSnapshot
+from core.exceptions import ArtifactConflictError
 from core.models.reasoning_artifact import ReasoningArtifact
+from core.models.stock_snapshot import StockSnapshot
+from db.models.artifact import ArtifactORM
 
 
 def _get_artifact_pk(artifact: BaseModel) -> str:
@@ -39,7 +40,7 @@ class ArtifactRepository:
         pk = _get_artifact_pk(artifact)
         existing = self.db.query(ArtifactORM).filter_by(artifact_id=pk).first()
         if existing:
-            raise Exception("Artifacts are immutable. Update not allowed.")
+            raise ArtifactConflictError("Artifacts are immutable. Update not allowed.")
 
         orm_obj = ArtifactORM(
             artifact_id=pk,

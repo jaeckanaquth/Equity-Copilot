@@ -1,0 +1,13 @@
+# Conda environment for Equity Copilot.
+# Create: conda env create -f environment.yml
+# Activate: conda activate snow
+name: snow
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+    - -r requirements/base.txt
+    - -r requirements/dev.txt

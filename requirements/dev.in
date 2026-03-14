@@ -1,0 +1,5 @@
+# Test and dev tooling. Install after base: pip install -r requirements/dev.txt
+-r base.txt
+
+pytest
+pytest-cov

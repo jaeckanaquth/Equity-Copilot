@@ -10,8 +10,8 @@ from pathlib import Path
 # Ensure project root is on path when run as script
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from db.session import SessionLocal
 from core.repositories.artifact_repository import ArtifactRepository
+from db.session import SessionLocal
 from tests.fixtures.artifact_factory import reasoning_artifact_factory
 
 

@@ -15,9 +15,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from db.session import SessionLocal
 from db.models.artifact import ArtifactORM
 from db.models.question_answer import QuestionAnswerORM
+from db.session import SessionLocal
 
 
 def _statement_from_payload(payload: dict) -> str:

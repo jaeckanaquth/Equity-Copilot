@@ -1,0 +1,214 @@
+{
+  "snapshots": [
+    {
+      "metadata": {
+        "snapshot_id": "9a2f6e7a-3e9a-4c91-b6d2-0c3e8f6b9c41",
+        "as_of": "2026-01-26T18:30:00+05:30",
+        "schema_version": "v1",
+        "data_sources": [
+          "yahoo_finance",
+          "manual_csv"
+        ]
+      },
+      "company": {
+        "ticker": "TCS",
+        "exchange": "NSE",
+        "company_name": "Tata Consultancy Services Ltd",
+        "sector": "Information Technology",
+        "industry": "IT Services",
+        "country": "India"
+      },
+      "market_state": {
+        "current_price": "3890.5",
+        "currency": "INR",
+        "market_cap": "14200000000000",
+        "shares_outstanding": "3650000000",
+        "fifty_two_week_high": "4254.75",
+        "fifty_two_week_low": "3050.1"
+      },
+      "financials": {
+        "revenue_fy": "240893000000",
+        "net_profit_fy": "44302000000",
+        "operating_margin_fy": "0.248",
+        "quarterly_revenue": [
+          "58000000000",
+          "59200000000",
+          null,
+          "61000000000"
+        ],
+        "quarterly_net_profit": [
+          "11000000000",
+          null,
+          "11200000000"
+        ]
+      },
+      "balance_sheet": {
+        "total_assets": "153000000000",
+        "total_liabilities": "48000000000",
+        "total_debt": null,
+        "cash_and_equivalents": "76000000000"
+      },
+      "user_notes": {
+        "user_notes": "Captured post Q3 FY25 results. No adjustments made."
+      }
+    },
+    {
+      "metadata": {
+        "snapshot_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "as_of": "2025-06-30T18:30:00+05:30",
+        "schema_version": "v1",
+        "data_sources": [
+          "yahoo_finance",
+          "manual_csv"
+        ]
+      },
+      "company": {
+        "ticker": "TCS",
+        "exchange": "NSE",
+        "company_name": "Tata Consultancy Services Ltd",
+        "sector": "Information Technology",
+        "industry": "IT Services",
+        "country": "India"
+      },
+      "market_state": {
+        "current_price": "3890.5",
+        "currency": "INR",
+        "market_cap": "14200000000000",
+        "shares_outstanding": "3650000000",
+        "fifty_two_week_high": "4254.75",
+        "fifty_two_week_low": "3050.1"
+      },
+      "financials": {
+        "revenue_fy": "240893000000",
+        "net_profit_fy": "44302000000",
+        "operating_margin_fy": "0.248",
+        "quarterly_revenue": [
+          "58000000000",
+          "59200000000",
+          null,
+          "61000000000"
+        ],
+        "quarterly_net_profit": [
+          "11000000000",
+          null,
+          "11200000000"
+        ]
+      },
+      "balance_sheet": {
+        "total_assets": "153000000000",
+        "total_liabilities": "48000000000",
+        "total_debt": null,
+        "cash_and_equivalents": "76000000000"
+      },
+      "user_notes": {
+        "user_notes": "Captured post Q3 FY25 results. No adjustments made."
+      }
+    }
+  ],
+  "reasoning_artifacts": [
+    {
+      "reasoning_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "schema_version": "v1",
+      "created_at": "2026-02-07T08:07:24.234878Z",
+      "created_by": "human",
+      "artifact_type": "thesis",
+      "subject": {
+        "entity_type": "company",
+        "entity_id": "TCS"
+      },
+      "references": {
+        "snapshot_ids": [
+          "9a2f6e7a-3e9a-4c91-b6d2-0c3e8f6b9c41"
+        ],
+        "derived_metric_set_ids": [],
+        "analysis_view_ids": []
+      },
+      "claim": {
+        "statement": "Valuation looks reasonable given growth and margin stability.",
+        "stance": "neutral"
+      },
+      "reasoning": {
+        "rationale": [
+          "Revenue growth in line with guidance.",
+          "Margins stable QoQ."
+        ],
+        "assumptions": [
+          "FY26 guidance is achieved.",
+          "No major client exits."
+        ],
+        "counterpoints": [
+          "Rupee strength could hurt margins."
+        ]
+      },
+      "confidence": {
+        "confidence_level": "medium",
+        "confidence_rationale": "Based on last two quarters."
+      },
+      "review": {
+        "review_by": null,
+        "review_trigger": "Next earnings"
+      }
+    },
+    {
+      "reasoning_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "schema_version": "v1",
+      "created_at": "2026-02-07T08:07:24.234878Z",
+      "created_by": "human",
+      "artifact_type": "question",
+      "subject": {
+        "entity_type": "company",
+        "entity_id": "TCS"
+      },
+      "references": {
+        "snapshot_ids": [
+          "9a2f6e7a-3e9a-4c91-b6d2-0c3e8f6b9c41"
+        ],
+        "derived_metric_set_ids": [],
+        "analysis_view_ids": []
+      },
+      "claim": {
+        "statement": "How much of growth is from pricing vs volume?",
+        "stance": "exploratory"
+      },
+      "reasoning": {
+        "rationale": [],
+        "assumptions": [],
+        "counterpoints": []
+      },
+      "confidence": {
+        "confidence_level": "low",
+        "confidence_rationale": "Unresolved."
+      },
+      "review": {
+        "review_by": null,
+        "review_trigger": null
+      }
+    }
+  ],
+  "lifecycle_events": [
+    {
+      "event_id": "d4e5f6a7-b8c9-0123-def0-234567890123",
+      "schema_version": "v1",
+      "occurred_at": "2026-02-07T08:07:24.234878Z",
+      "recorded_by": "human",
+      "reasoning_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "previous_state": "active",
+      "new_state": "active",
+      "trigger": {
+        "trigger_type": "manual",
+        "description": "Initial creation"
+      },
+      "justification": {
+        "summary": "Created with demo catalog.",
+        "snapshot_ids": [
+          "9a2f6e7a-3e9a-4c91-b6d2-0c3e8f6b9c41"
+        ],
+        "derived_metric_set_ids": [],
+        "analysis_view_ids": [],
+        "reasoning_artifact_ids": []
+      }
+    }
+  ],
+  "derived_metric_sets": [],
+  "analysis_views": []
+}

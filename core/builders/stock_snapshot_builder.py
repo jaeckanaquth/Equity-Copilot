@@ -1,26 +1,26 @@
 from __future__ import annotations
 
-from typing import Optional, Dict, Any
+from typing import Any
 
 from core.models.stock_snapshot import (
-    StockSnapshot,
-    SnapshotMetadata,
-    CompanyIdentity,
-    MarketState,
-    FinancialSummary,
     BalanceSheetSignals,
+    CompanyIdentity,
+    FinancialSummary,
+    MarketState,
+    SnapshotMetadata,
+    StockSnapshot,
     UserNotes,
 )
 
 
 def build_stock_snapshot(
     *,
-    metadata: Dict[str, Any],
-    company: Dict[str, Any],
-    market_state: Dict[str, Any],
-    financials: Dict[str, Any],
-    balance_sheet: Dict[str, Any],
-    user_notes: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any],
+    company: dict[str, Any],
+    market_state: dict[str, Any],
+    financials: dict[str, Any],
+    balance_sheet: dict[str, Any],
+    user_notes: dict[str, Any] | None = None,
 ) -> StockSnapshot:
     """
     Construct a StockSnapshot v1 from explicit inputs.

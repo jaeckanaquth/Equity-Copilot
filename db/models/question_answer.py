@@ -1,10 +1,12 @@
-from sqlalchemy import Column, String, DateTime, Text
+from datetime import UTC, datetime
+
+from sqlalchemy import Column, DateTime, String, Text
+
 from db.session import Base
-from datetime import datetime, timezone
 
 
 def _utc_now():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class QuestionAnswerORM(Base):

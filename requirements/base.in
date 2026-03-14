@@ -5,11 +5,15 @@ rich
 # API
 fastapi
 jinja2
+uvicorn
 
 # Data
 pandas
 requests
 yfinance
+
+# Database
+sqlalchemy
 
 # Validation / schemas
 pydantic

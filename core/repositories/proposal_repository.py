@@ -1,3 +1,5 @@
+from datetime import UTC
+
 from sqlalchemy.orm import Session
 
 from db.models.proposal import ProposalORM
@@ -107,9 +109,9 @@ class ProposalRepository:
         self.update_status(proposal_id, resolution)
 
     def expire_older_than_days(self, days: int):
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
         (
             self.db.query(ProposalORM)
             .filter(ProposalORM.status == "pending", ProposalORM.created_at < cutoff)

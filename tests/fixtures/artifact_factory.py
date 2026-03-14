@@ -1,19 +1,19 @@
 """Factory for creating valid ReasoningArtifact instances in tests."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from core.models.reasoning_artifact import (
-    ReasoningArtifact,
-    ReasoningSubject,
-    ReasoningReferences,
-    ReasoningClaim,
-    ReasoningDetail,
-    ReasoningConfidence,
-    ReasoningReview,
-    CreatedBy,
     ArtifactType,
-    Stance,
     ConfidenceLevel,
+    CreatedBy,
+    ReasoningArtifact,
+    ReasoningClaim,
+    ReasoningConfidence,
+    ReasoningDetail,
+    ReasoningReferences,
+    ReasoningReview,
+    ReasoningSubject,
+    Stance,
     SubjectEntityType,
 )
 
@@ -29,7 +29,7 @@ def reasoning_artifact_factory(
 ):
     """Create a valid ReasoningArtifact with sensible defaults."""
     rid = reasoning_id or uuid4()
-    created = created_at or datetime.now(timezone.utc)
+    created = created_at or datetime.now(UTC)
     snapshot_ids = snapshot_ids or []
 
     base = {

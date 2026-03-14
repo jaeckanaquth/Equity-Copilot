@@ -9,24 +9,24 @@ Creates:
 - Snapshots with no dependents (orphans)
 """
 import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from db.session import SessionLocal
-from core.repositories.artifact_repository import ArtifactRepository
-from core.repositories.lifecycle_repository import BeliefLifecycleRepository
-from core.models.reasoning_artifact import ArtifactType
 from core.models.belief_lifecycle_event import (
     BeliefLifecycleEvent,
     BeliefState,
-    TriggerType,
-    LifecycleTrigger,
     LifecycleJustification,
+    LifecycleTrigger,
     RecordedBy,
+    TriggerType,
 )
+from core.models.reasoning_artifact import ArtifactType
+from core.repositories.artifact_repository import ArtifactRepository
+from core.repositories.lifecycle_repository import BeliefLifecycleRepository
+from db.session import SessionLocal
 from tests.fixtures.artifact_factory import reasoning_artifact_factory
 from tests.fixtures.snapshot_factory import make_snapshot
 
@@ -36,7 +36,7 @@ def main():
     try:
         artifact_repo = ArtifactRepository(db)
         lifecycle_repo = BeliefLifecycleRepository(db)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # --- Snapshots for 3 companies (various as_of) ---
         tickers = ["RELIANCE", "TCS", "INFY"]

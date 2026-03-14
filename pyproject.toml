@@ -1,0 +1,50 @@
+[project]
+name = "equity-copilot"
+version = "0.1.0"
+description = "Log-structured reasoning system for equity investing"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [".git", "__pycache__", "*.pyc"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = [
+    "E501",   # line length (handled by formatter if used)
+    "E402",   # import not at top (proposal_engine, test_stock_snapshot)
+    "F841",   # unused variable (scripts)
+    "N806",   # lowercase variable in function (test fixtures)
+    "N818",   # exception name Error suffix (LLMNotConfigured)
+    "UP042",  # StrEnum (str, Enum used for compatibility)
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+explicit_package_bases = true
+disable_error_code = ["import-untyped"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "scripts.*"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["api", "core", "db"]
+omit = ["tests/*", "**/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+]

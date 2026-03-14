@@ -4,12 +4,10 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from main import app
-from api.routes.review import get_db
-from db.session import Base
-from db.models.artifact import ArtifactORM
-from db.models.lifecycle import BeliefLifecycleEventORM
+from api.deps import get_db
 from core.repositories.artifact_repository import ArtifactRepository
+from db.session import Base
+from main import app
 from tests.fixtures.artifact_factory import reasoning_artifact_factory
 
 
@@ -47,7 +45,7 @@ def client():
 
 
 def test_review_endpoints_are_read_only(client):
-    client, engine, belief_id = client
+    test_client, engine, belief_id = client
     writes_detected = []
 
     @event.listens_for(engine, "before_cursor_execute")
@@ -56,10 +54,9 @@ def test_review_endpoints_are_read_only(client):
         if normalized.startswith(("INSERT", "UPDATE", "DELETE")):
             writes_detected.append(statement)
 
-    # Call all review endpoints
-    client.get("/review/questions")
-    client.get("/review/beliefs/stale")
-    client.get("/review/orphans")
-    client.get(f"/review/beliefs/{belief_id}/coverage")
+    test_client.get("/review/questions")
+    test_client.get("/review/beliefs/stale")
+    test_client.get("/review/orphans")
+    test_client.get(f"/review/beliefs/{belief_id}/coverage")
 
     assert len(writes_detected) == 0, f"Writes detected: {writes_detected}"

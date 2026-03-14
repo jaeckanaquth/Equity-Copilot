@@ -1,10 +1,35 @@
+# Bytecode / caches
 *__pycache__*
 *__pycache__*/
 *.pyc
-
-*.json
-
 .pytest_cache*
+.mypy_cache/
+.ruff_cache/
+
+# Coverage and build
+.coverage
+coverage.xml
+htmlcov/
 
 # Local SQLite DB (recreate via scripts/import_snapshots.py)
 *.db
+
+# JSON data (allow test fixtures)
+*.json
+!tests/fixtures/*.json
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.cursor
+.idea/
+.vscode/
+
+# Build / dist
+dist/
+build/
+*.egg-info/
+*.egg

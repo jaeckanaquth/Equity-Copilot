@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
-from typing_extensions import Literal
-
+from pydantic import BaseModel, field_validator
 
 # -----------------------------
 # Enums
@@ -29,8 +27,8 @@ class ConfidenceLevel(str, Enum):
 # -----------------------------
 
 class AnalysisViewInput(BaseModel):
-    snapshot_ids: List[UUID]
-    derived_metric_set_ids: List[UUID]
+    snapshot_ids: list[UUID]
+    derived_metric_set_ids: list[UUID]
 
     @field_validator("snapshot_ids")
     @classmethod
@@ -43,20 +41,20 @@ class AnalysisViewInput(BaseModel):
 class AnalysisFrame(BaseModel):
     intent: str
 
-    assumptions: List[str]
-    exclusions: List[str]
-    applicability_limits: List[str]
+    assumptions: list[str]
+    exclusions: list[str]
+    applicability_limits: list[str]
 
 
 class AnalysisOutputField(BaseModel):
     field_name: str
-    value: Optional[Union[float, str]]
-    unit: Optional[str]
+    value: float | str | None
+    unit: str | None
     derivation_note: str
 
 
 class AnalysisOutputs(BaseModel):
-    fields: List[AnalysisOutputField]
+    fields: list[AnalysisOutputField]
 
     @field_validator("fields")
     @classmethod

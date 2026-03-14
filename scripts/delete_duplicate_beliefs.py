@@ -8,14 +8,14 @@ Also removes lifecycle events for deleted belief IDs.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from db.session import SessionLocal
 from db.models.artifact import ArtifactORM
 from db.models.lifecycle import BeliefLifecycleEventORM
+from db.session import SessionLocal
 
 
 def main():
@@ -51,7 +51,6 @@ def main():
             if len(items) <= 1:
                 continue
             items.sort(key=lambda x: x[1])
-            kept_id = items[0][0]
             for aid, _ in items[1:]:
                 to_delete.append(aid)
 

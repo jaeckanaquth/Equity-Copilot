@@ -1,17 +1,17 @@
 """Derived metrics, determinism, valuation multiple view."""
+from datetime import UTC, datetime
 from uuid import uuid4
-from datetime import datetime, timezone
 
 from core.derivations.assemble import build_revenue_yoy_metric_set
 from core.derivations.compute import compute_revenue_fy_percent_change
-from core.views.valuation_multiple import build_valuation_multiple_view
 from core.models.analysis_view import (
-    AnalysisFrame,
     AnalysisConfidence,
-    CreatedBy,
+    AnalysisFrame,
     ConfidenceLevel,
+    CreatedBy,
 )
 from core.models.derived_metrics import DerivedMetric, DerivedMetricSet, MetricType, SnapshotRef
+from core.views.valuation_multiple import build_valuation_multiple_view
 
 
 def test_deterministic_output(snapshot_factory):
@@ -36,7 +36,7 @@ def test_revenue_percent_change_null_safe(snapshot_factory):
 
 
 def test_build_valuation_multiple_view_basic():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     sid1, sid2 = uuid4(), uuid4()
     dms = DerivedMetricSet(
         derived_set_id=uuid4(),

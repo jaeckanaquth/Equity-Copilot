@@ -10,33 +10,33 @@ Architecture rule:
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from uuid import uuid5, UUID
+from uuid import UUID, uuid5
 
 # Project root
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import yfinance as yf
 from zoneinfo import ZoneInfo
 
-from db.session import SessionLocal
+import yfinance as yf
+
+from core.models.stock_snapshot import (
+    BalanceSheetSignals,
+    CompanyIdentity,
+    FinancialSummary,
+    MarketState,
+    SnapshotMetadata,
+    StockSnapshot,
+)
+from core.repositories.artifact_repository import ArtifactRepository
 from db.models.artifact import ArtifactORM
 from db.models.lifecycle import BeliefLifecycleEventORM
+from db.models.observed_returns import BeliefReturnObservationORM, ObservedReturnPeriodORM
 from db.models.proposal import ProposalORM
 from db.models.review_cadence import BeliefReviewCadenceORM
-from db.models.observed_returns import ObservedReturnPeriodORM, BeliefReturnObservationORM
-from core.repositories.artifact_repository import ArtifactRepository
-from core.models.stock_snapshot import (
-    StockSnapshot,
-    SnapshotMetadata,
-    CompanyIdentity,
-    MarketState,
-    FinancialSummary,
-    BalanceSheetSignals,
-    UserNotes,
-)
+from db.session import SessionLocal
 
 IST = ZoneInfo("Asia/Kolkata")
 # Deterministic snapshot_id so re-run skips existing (immutable).
@@ -65,7 +65,7 @@ def _quarter_end_to_ist(dt) -> datetime:
     if hasattr(dt, "to_pydatetime"):
         dt = dt.to_pydatetime()
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt.astimezone(IST)
 
 

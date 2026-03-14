@@ -10,6 +10,27 @@ The system does not predict markets or optimize trades. It enforces structured t
 
 ---
 
+## Install
+
+**Option A — Conda (recommended)**
+
+```bash
+conda env create -f environment.yml
+conda activate snow
+```
+
+**Option B — pip only**
+
+Use Python 3.13, then:
+
+```bash
+pip install -r requirements/base.txt
+```
+
+For running tests and coverage: `pip install -r requirements/dev.txt`, then `pytest tests/ -v --cov --cov-report=term-missing`.
+
+---
+
 ## Run
 
 ```bash
